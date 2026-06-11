@@ -123,8 +123,8 @@ public class MainActivity extends Activity {
     }
 
     private void setupBars() {
-        getWindow().setStatusBarColor(Color.parseColor("#07111f"));
-        getWindow().setNavigationBarColor(Color.parseColor("#07111f"));
+        getWindow().setStatusBarColor(Color.parseColor("#000000"));
+        getWindow().setNavigationBarColor(Color.parseColor("#000000"));
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
     }
 

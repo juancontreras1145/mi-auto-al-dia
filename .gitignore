@@ -17,7 +17,3 @@ app/*release*.jks
 .DS_Store
 .idea/
 .vscode/
-
-*.jks
-*.keystore
-*keystore-base64*.txt
