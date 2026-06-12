@@ -17,3 +17,4 @@ app/*release*.jks
 .DS_Store
 .idea/
 .vscode/
+mi-auto-keystore-base64.txt
