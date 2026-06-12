@@ -1,0 +1,746 @@
+{
+  "app": "Mi Auto al Día",
+  "version": 1,
+  "exportedAt": "2026-06-12T03:56:21.867Z",
+  "vehicle": {
+    "name": "Fiat Punto",
+    "year": "2017",
+    "plate": "JHFB94",
+    "currentKm": 148200,
+    "image": "vehicle_default.jpg"
+  },
+  "items": [
+    {
+      "id": "oil",
+      "name": "Aceite motor",
+      "category": "Motor",
+      "x": 21.23652696609497,
+      "y": 59.8001086109327,
+      "intervalKm": 30000,
+      "intervalMonths": 12,
+      "points": {
+        "motor": {
+          "x": 13.440935611724852,
+          "y": 62.964446739302325
+        }
+      },
+      "document": false,
+      "source": "Manual Fiat Punto - plan gasolina",
+      "note": "Plan gasolina: cambio junto con filtro cada 30.000 km; si uso principalmente urbano o menos de 10.000 km/año, cambiar cada año."
+    },
+    {
+      "id": "oil_filter",
+      "name": "Filtro de aceite",
+      "category": "Motor",
+      "x": 30.00117540359497,
+      "y": 55.389528159130286,
+      "intervalKm": 30000,
+      "intervalMonths": 12,
+      "points": {},
+      "document": false,
+      "source": "Manual Fiat Punto - plan gasolina",
+      "note": "Cambiar junto con el aceite motor."
+    },
+    {
+      "id": "air_filter",
+      "name": "Filtro de aire",
+      "category": "Motor",
+      "x": 24.94746446609497,
+      "y": 54.45885521975914,
+      "intervalKm": 30000,
+      "intervalMonths": 24,
+      "points": {},
+      "document": false,
+      "source": "Manual Fiat Punto - plan gasolina",
+      "note": "Plan gasolina: cada 30.000 km/2 años. En zonas polvorientas: cada 15.000 km."
+    },
+    {
+      "id": "spark_plugs",
+      "name": "Bujías de encendido",
+      "category": "Motor",
+      "x": 34.06611680984497,
+      "y": 51.929891574851716,
+      "intervalKm": 30000,
+      "intervalMonths": 24,
+      "points": {
+        "motor": {
+          "x": 42.04201062520345,
+          "y": 30.58438417846355
+        }
+      },
+      "document": false,
+      "source": "Manual Fiat Punto - plan gasolina",
+      "note": "Plan gasolina: sustitución cada 30.000 km/2 años."
+    },
+    {
+      "id": "tires",
+      "name": "Neumáticos presión/desgaste",
+      "category": "Ruedas",
+      "x": 53.46779187520345,
+      "y": 80.80094580804695,
+      "intervalKm": 15000,
+      "intervalMonths": 12,
+      "points": {},
+      "document": false,
+      "source": "Manual Fiat Punto - plan gasolina",
+      "note": "Control de estado, desgaste y presión en cada revisión; además revisar antes de viajes largos."
+    },
+    {
+      "id": "front_brakes",
+      "name": "Frenos delanteros",
+      "category": "Frenos",
+      "x": 44.449469917698906,
+      "y": 80.45040383415976,
+      "intervalKm": 15000,
+      "intervalMonths": 12,
+      "points": {},
+      "document": false,
+      "source": "Manual Fiat Punto - plan gasolina",
+      "note": "Control visual de pastillas y funcionamiento del indicador de desgaste en cada revisión."
+    },
+    {
+      "id": "rear_brakes",
+      "name": "Frenos traseros",
+      "category": "Frenos",
+      "x": 83.74394098917644,
+      "y": 54.21607097470579,
+      "intervalKm": 15000,
+      "intervalMonths": 12,
+      "points": {},
+      "document": false,
+      "source": "Manual Fiat Punto - plan gasolina",
+      "note": "Control visual de pastillas o zapatas traseras según versión en cada revisión."
+    },
+    {
+      "id": "timing_belt",
+      "name": "Correa distribución",
+      "category": "Motor",
+      "x": 19.46650743484497,
+      "y": 48.38924909342553,
+      "intervalKm": 60000,
+      "intervalMonths": 48,
+      "points": {
+        "motor": {
+          "x": 14.921648502349855,
+          "y": 35.91968474295113
+        }
+      },
+      "document": false,
+      "source": "Manual Fiat Punto - plan gasolina",
+      "note": "Conservador por uso exigente/polvo/ciudad: 60.000 km o 4 años. En zonas sin polvo el máximo indicado es 120.000 km o 6 años."
+    },
+    {
+      "id": "battery",
+      "name": "Batería / carga",
+      "category": "Motor",
+      "x": 37.26435899734497,
+      "y": 63.199088041679516,
+      "intervalKm": 75000,
+      "intervalMonths": 60,
+      "points": {},
+      "document": false,
+      "source": "Manual Fiat Punto - plan gasolina",
+      "note": "Control periódico de carga/nivel de electrolito cuando corresponda; revisar en cada servicio."
+    },
+    {
+      "id": "coolant",
+      "name": "Refrigerante motor / nivel",
+      "category": "Fluidos",
+      "x": 26.10713243484497,
+      "y": 65.17331984013202,
+      "intervalKm": 1000,
+      "intervalMonths": null,
+      "points": {
+        "motor": {
+          "x": 85.91055234273274,
+          "y": 53.16154055739576
+        }
+      },
+      "document": false,
+      "source": "Manual Fiat Punto - plan gasolina",
+      "note": "Control periódico: revisar cada 1.000 km o antes de viajes largos."
+    },
+    {
+      "id": "lights_front",
+      "name": "Luces delanteras",
+      "category": "Luces",
+      "x": 12.61836290359497,
+      "y": 51.73925828051365,
+      "intervalKm": 15000,
+      "intervalMonths": 12,
+      "points": {},
+      "document": false,
+      "source": "Manual Fiat Punto - plan gasolina",
+      "note": "Control del sistema de iluminación en cada revisión y antes de viajes largos."
+    },
+    {
+      "id": "lights_rear",
+      "name": "Luces traseras",
+      "category": "Luces",
+      "x": 86.39286677042644,
+      "y": 20.489326976977225,
+      "intervalKm": 15000,
+      "intervalMonths": 12,
+      "points": {},
+      "document": false,
+      "source": "Manual Fiat Punto - plan gasolina",
+      "note": "Control del sistema de iluminación en cada revisión y antes de viajes largos."
+    },
+    {
+      "id": "alignment",
+      "name": "Alineación y balanceo",
+      "category": "Ruedas",
+      "x": 44.77638562520345,
+      "y": 69.59240649475092,
+      "intervalKm": 10000,
+      "intervalMonths": 6,
+      "points": {},
+      "document": false,
+      "source": "Manual Fiat Punto - plan gasolina",
+      "note": "Preventivo práctico: no aparece como sustitución programada Fiat; mantener por desgaste irregular o vibración."
+    },
+    {
+      "id": "wipers",
+      "name": "Escobillas limpiaparabrisas/luneta",
+      "category": "Exterior",
+      "x": 37.67939805984497,
+      "y": 27.298977611810365,
+      "intervalKm": 15000,
+      "intervalMonths": 12,
+      "points": {},
+      "document": false,
+      "source": "Manual Fiat Punto - plan gasolina",
+      "note": "Control de colocación/desgaste; revisar también cada 1.000 km o antes de viajes largos."
+    },
+    {
+      "id": "technical_review",
+      "name": "Revisión técnica",
+      "category": "Documentos",
+      "x": 11.28779649734497,
+      "y": 12.659501029741751,
+      "intervalKm": null,
+      "intervalMonths": null,
+      "points": {},
+      "document": true,
+      "source": "Manual Fiat Punto - plan gasolina"
+    },
+    {
+      "id": "soap",
+      "name": "SOAP",
+      "category": "Documentos",
+      "x": 33.06984265645345,
+      "y": 7.115927434357064,
+      "intervalKm": null,
+      "intervalMonths": null,
+      "points": {},
+      "document": true,
+      "source": "Manual Fiat Punto - plan gasolina"
+    },
+    {
+      "id": "brake_fluid",
+      "name": "Cambio líquido de frenos",
+      "category": "Frenos",
+      "x": 78,
+      "y": 42,
+      "intervalKm": 30000,
+      "intervalMonths": 24,
+      "points": {
+        "motor": {
+          "x": 78,
+          "y": 42
+        }
+      },
+      "document": false,
+      "source": "Manual Fiat Punto - plan gasolina",
+      "note": "Sustitución cada 30.000 km/2 años según plan gasolina."
+    },
+    {
+      "id": "driver_license",
+      "name": "Licencia de conducir",
+      "category": "Documentos",
+      "x": 18,
+      "y": 10,
+      "intervalKm": null,
+      "intervalMonths": null,
+      "document": true,
+      "points": {},
+      "source": "Manual Fiat Punto - plan gasolina"
+    },
+    {
+      "id": "driving_permit",
+      "name": "Permiso de circulación",
+      "category": "Documentos",
+      "x": 38,
+      "y": 10,
+      "intervalKm": null,
+      "intervalMonths": null,
+      "document": true,
+      "points": {},
+      "source": "Manual Fiat Punto - plan gasolina"
+    },
+    {
+      "id": "scheduled_service",
+      "name": "Revisión Fiat programada",
+      "category": "Servicio",
+      "x": 11,
+      "y": 12,
+      "intervalKm": 15000,
+      "intervalMonths": 12,
+      "points": {},
+      "note": "Plan gasolina: revisión cada 15.000 km o 1 año; después de 120.000 km/8 años se repite el ciclo.",
+      "source": "Manual Fiat Punto - plan gasolina",
+      "document": false
+    },
+    {
+      "id": "diagnostics",
+      "name": "Diagnosis alimentación/emisiones",
+      "category": "Servicio",
+      "x": 18,
+      "y": 16,
+      "intervalKm": 15000,
+      "intervalMonths": 12,
+      "points": {},
+      "note": "Control con toma de diagnosis del sistema de alimentación/control motor, emisiones y degradación de aceite si aplica.",
+      "source": "Manual Fiat Punto - plan gasolina",
+      "document": false
+    },
+    {
+      "id": "emissions_check",
+      "name": "Control emisiones/humos",
+      "category": "Servicio",
+      "x": 25,
+      "y": 15,
+      "intervalKm": 15000,
+      "intervalMonths": 12,
+      "points": {},
+      "note": "Control de emisiones/humos de gases de escape en cada revisión programada.",
+      "source": "Manual Fiat Punto - plan gasolina",
+      "document": false
+    },
+    {
+      "id": "oil_level_check",
+      "name": "Nivel de aceite motor",
+      "category": "Fluidos",
+      "x": 21,
+      "y": 60,
+      "intervalKm": 3000,
+      "intervalMonths": null,
+      "points": {
+        "motor": {
+          "x": 13,
+          "y": 63
+        }
+      },
+      "note": "Control periódico: comprobar y restablecer cada 3.000 km.",
+      "source": "Manual Fiat Punto - plan gasolina",
+      "document": false
+    },
+    {
+      "id": "brake_fluid_level",
+      "name": "Nivel líquido de frenos/embrague",
+      "category": "Fluidos",
+      "x": 78,
+      "y": 42,
+      "intervalKm": 1000,
+      "intervalMonths": null,
+      "points": {
+        "motor": {
+          "x": 78,
+          "y": 42
+        }
+      },
+      "note": "Control periódico: revisar nivel cada 1.000 km o antes de viajes largos.",
+      "source": "Manual Fiat Punto - plan gasolina",
+      "document": false
+    },
+    {
+      "id": "washer_fluid",
+      "name": "Líquido lavacristales",
+      "category": "Fluidos",
+      "x": 70,
+      "y": 44,
+      "intervalKm": 1000,
+      "intervalMonths": null,
+      "points": {
+        "motor": {
+          "x": 70,
+          "y": 44
+        }
+      },
+      "note": "Control periódico: revisar nivel cada 1.000 km o antes de viajes largos.",
+      "source": "Manual Fiat Punto - plan gasolina",
+      "document": false
+    },
+    {
+      "id": "fluid_levels",
+      "name": "Puesta a nivel de líquidos",
+      "category": "Fluidos",
+      "x": 50,
+      "y": 44,
+      "intervalKm": 15000,
+      "intervalMonths": 12,
+      "points": {},
+      "note": "Control y posible puesta a nivel de refrigerante, frenos/embrague, lavacristales y batería en cada revisión.",
+      "source": "Manual Fiat Punto - plan gasolina",
+      "document": false
+    },
+    {
+      "id": "cabin_filter",
+      "name": "Filtro habitáculo / antipolen",
+      "category": "Exterior",
+      "x": 42,
+      "y": 26,
+      "intervalKm": 15000,
+      "intervalMonths": 12,
+      "points": {},
+      "note": "Recomendado cada 15.000 km/1 año; obligatorio cada 30.000 km/2 años según tabla.",
+      "source": "Manual Fiat Punto - plan gasolina",
+      "document": false
+    },
+    {
+      "id": "accessory_belt",
+      "name": "Correa accesorios",
+      "category": "Motor",
+      "x": 23,
+      "y": 47,
+      "intervalKm": 60000,
+      "intervalMonths": 48,
+      "points": {
+        "motor": {
+          "x": 22,
+          "y": 37
+        }
+      },
+      "note": "Control visual/tensado según versión; sustitución máxima 120.000 km/6 años normal o 60.000 km/4 años en uso exigente.",
+      "source": "Manual Fiat Punto - plan gasolina",
+      "document": false
+    },
+    {
+      "id": "valve_clearance",
+      "name": "Juego de taqués / válvulas",
+      "category": "Motor",
+      "x": 41,
+      "y": 50,
+      "intervalKm": 60000,
+      "intervalMonths": 48,
+      "points": {
+        "motor": {
+          "x": 46,
+          "y": 35
+        }
+      },
+      "note": "Aplica a versiones 1.2 8v y 1.4 8v: control y posible regulación cada 60.000 km/4 años.",
+      "source": "Manual Fiat Punto - plan gasolina",
+      "document": false
+    },
+    {
+      "id": "handbrake_adjust",
+      "name": "Regulación freno de mano",
+      "category": "Frenos",
+      "x": 70,
+      "y": 62,
+      "intervalKm": 30000,
+      "intervalMonths": 24,
+      "points": {},
+      "note": "Control y posible regulación del recorrido de la palanca cada 30.000 km/2 años.",
+      "source": "Manual Fiat Punto - plan gasolina",
+      "document": false
+    },
+    {
+      "id": "fixgo_kit",
+      "name": "Kit Fix&Go / sellador neumáticos",
+      "category": "Ruedas",
+      "x": 62,
+      "y": 76,
+      "intervalKm": 15000,
+      "intervalMonths": 12,
+      "points": {},
+      "note": "Si el vehículo lo trae, controlar el vencimiento de la recarga/sellador en cada revisión.",
+      "source": "Manual Fiat Punto - plan gasolina",
+      "document": false
+    },
+    {
+      "id": "lights_system",
+      "name": "Luces interiores/testigos/emergencia",
+      "category": "Luces",
+      "x": 50,
+      "y": 12,
+      "intervalKm": 15000,
+      "intervalMonths": 12,
+      "points": {},
+      "note": "Incluye faros, intermitentes, luces de emergencia, maletero, habitáculo, guantera y testigos del cuadro.",
+      "source": "Manual Fiat Punto - plan gasolina",
+      "document": false
+    },
+    {
+      "id": "washer_system",
+      "name": "Sistema limpia/lavacristales",
+      "category": "Exterior",
+      "x": 35,
+      "y": 31,
+      "intervalKm": 15000,
+      "intervalMonths": 12,
+      "points": {},
+      "note": "Control de funcionamiento y posible regulación de pulverizadores.",
+      "source": "Manual Fiat Punto - plan gasolina",
+      "document": false
+    },
+    {
+      "id": "body_underbody",
+      "name": "Carrocería/bajos/tubos/gomas",
+      "category": "Exterior",
+      "x": 50,
+      "y": 50,
+      "intervalKm": 30000,
+      "intervalMonths": 24,
+      "points": {},
+      "note": "Control visual del exterior, protector de bajos, tubos rígidos/flexibles y elementos de goma.",
+      "source": "Manual Fiat Punto - plan gasolina",
+      "document": false
+    },
+    {
+      "id": "locks_lube",
+      "name": "Cerraduras capó/maletero",
+      "category": "Exterior",
+      "x": 77,
+      "y": 27,
+      "intervalKm": 30000,
+      "intervalMonths": 24,
+      "points": {},
+      "note": "Control de limpieza, limpieza y engrase de mecanismos de palanca.",
+      "source": "Manual Fiat Punto - plan gasolina",
+      "document": false
+    },
+    {
+      "id": "gearbox_oil_level",
+      "name": "Nivel aceite cambio mecánico",
+      "category": "Transmisión",
+      "x": 55,
+      "y": 50,
+      "intervalKm": 60000,
+      "intervalMonths": 48,
+      "points": {},
+      "note": "Control del nivel de aceite del cambio mecánico cada 60.000 km/4 años.",
+      "source": "Manual Fiat Punto - plan gasolina",
+      "document": false
+    },
+    {
+      "id": "dualogic_oil_level",
+      "name": "Nivel aceite cambio Dualogic",
+      "category": "Transmisión",
+      "x": 57,
+      "y": 53,
+      "intervalKm": 30000,
+      "intervalMonths": 24,
+      "points": {},
+      "note": "Solo si tiene cambio Dualogic; control cada 30.000 km/2 años o cada año en climas duros.",
+      "source": "Manual Fiat Punto - plan gasolina",
+      "document": false
+    }
+  ],
+  "records": [
+    {
+      "id": "8785696c-73f6-49a9-87ba-e5fefe108891",
+      "itemId": "handbrake_adjust",
+      "date": "2026-02-21",
+      "km": 146000,
+      "cost": 500000,
+      "shop": "ProAutos",
+      "notes": "",
+      "createdAt": "2026-06-12T03:55:58.680Z"
+    },
+    {
+      "id": "c7b4d8d1-9981-4af9-a8cf-27fc9ae580a0",
+      "itemId": "brake_fluid",
+      "date": "2026-02-21",
+      "km": 148200,
+      "cost": 100000,
+      "shop": "ProAutos",
+      "notes": "",
+      "createdAt": "2026-06-12T03:55:37.167Z"
+    },
+    {
+      "id": "040d8606-8ed6-4473-8fe9-6386c11e523f",
+      "itemId": "rear_brakes",
+      "date": "2026-02-21",
+      "km": 146000,
+      "cost": 100000,
+      "shop": "ProAutos",
+      "notes": "",
+      "createdAt": "2026-06-12T03:55:15.061Z"
+    },
+    {
+      "id": "08f533b4-fd53-4b4d-8679-2714eff5a228",
+      "itemId": "front_brakes",
+      "date": "2026-02-21",
+      "km": 146000,
+      "cost": 100000,
+      "shop": "ProAutos",
+      "notes": "",
+      "createdAt": "2026-06-12T03:54:35.336Z"
+    },
+    {
+      "id": "cb545dc3-45f3-4321-8102-17946015b788",
+      "itemId": "front_brakes",
+      "date": "2026-02-21",
+      "km": 146000,
+      "cost": 100000,
+      "shop": "ProAuto",
+      "notes": "",
+      "createdAt": "2026-06-12T03:54:11.174Z"
+    },
+    {
+      "id": "46636e10-aa87-4ffb-a16d-70768c1d664c",
+      "itemId": "battery",
+      "date": "2021-05-14",
+      "km": 78000,
+      "cost": 0,
+      "shop": "HV",
+      "notes": "Revision",
+      "createdAt": "2026-06-12T03:44:16.518Z"
+    },
+    {
+      "id": "15edb794-88dc-4a68-a84e-260748a547a9",
+      "itemId": "oil",
+      "date": "2025-06-28",
+      "km": 140000,
+      "cost": 0,
+      "shop": "Don Juan",
+      "notes": "5W40 C3 + Filtro",
+      "createdAt": "2026-06-12T03:43:41.360Z"
+    },
+    {
+      "id": "2770a9fc-011f-4c88-b303-4af2fb64f4f9",
+      "itemId": "oil",
+      "date": "2021-04-14",
+      "km": 78857,
+      "cost": 0,
+      "shop": "HV",
+      "notes": "Fue Revisión",
+      "createdAt": "2026-06-12T03:42:33.152Z"
+    },
+    {
+      "id": "131c6746-04af-4f77-bfa7-084288cff4eb",
+      "itemId": "timing_belt",
+      "date": "2025-09-07",
+      "km": 142000,
+      "cost": 100000,
+      "shop": "Taller Flores",
+      "notes": "Cambio Distribución + Bomba + Refrigerante.",
+      "createdAt": "2026-06-12T02:08:19.513Z"
+    },
+    {
+      "id": "c68bed2d-54d5-4aa5-9354-355a89bdddc5",
+      "itemId": "driver_license",
+      "date": "2025-02-11",
+      "km": 0,
+      "cost": 0,
+      "shop": "Quilpué",
+      "notes": "",
+      "issueDate": "2025-02-11",
+      "expiryDate": "2029-07-19",
+      "createdAt": "2026-06-12T01:57:53.480Z"
+    },
+    {
+      "id": "53498e96-ca2d-4760-9082-5a43280e0c0c",
+      "itemId": "soap",
+      "date": "2026-03-01",
+      "km": 0,
+      "cost": 0,
+      "shop": "",
+      "notes": "",
+      "issueDate": "2026-03-01",
+      "expiryDate": "2027-03-31",
+      "createdAt": "2026-06-12T01:57:10.571Z"
+    },
+    {
+      "id": "5c35432b-36f5-4c79-8959-ab97f80a4fb2",
+      "itemId": "driving_permit",
+      "date": "2026-03-01",
+      "km": 0,
+      "cost": 0,
+      "shop": "Quilpué",
+      "notes": "",
+      "issueDate": "2026-03-01",
+      "expiryDate": "2027-03-31",
+      "createdAt": "2026-06-12T01:56:35.811Z"
+    },
+    {
+      "id": "538cf849-7c51-4f99-9851-ae4bdac66c9f",
+      "itemId": "technical_review",
+      "date": "2025-08-02",
+      "km": 0,
+      "cost": 0,
+      "shop": "Quilpue",
+      "notes": "",
+      "createdAt": "2026-06-11T05:22:46.410Z",
+      "issueDate": "2025-08-02",
+      "expiryDate": "2026-07-31"
+    },
+    {
+      "id": "28a68ab1-6ca9-46ed-9d23-fbc666c7a1b4",
+      "itemId": "air_filter",
+      "date": "2026-01-01",
+      "km": 0,
+      "cost": 0,
+      "shop": "",
+      "notes": "",
+      "createdAt": "2026-06-11T04:34:41.327Z"
+    },
+    {
+      "id": "046c6db2-2925-4677-a71f-5edcc7034f51",
+      "itemId": "oil_filter",
+      "date": "2025-06-29",
+      "km": 148000,
+      "cost": 0,
+      "shop": "",
+      "notes": "",
+      "createdAt": "2026-06-11T04:34:12.625Z"
+    },
+    {
+      "id": "b314469a-318f-4ffb-96c3-b1f6a46424a9",
+      "itemId": "oil",
+      "date": "2025-06-29",
+      "km": 0,
+      "cost": 10000,
+      "shop": "",
+      "notes": "5W40 C3",
+      "createdAt": "2026-06-11T04:12:07.020Z"
+    },
+    {
+      "id": "97425d0a-c26d-4aed-9aa2-d7ec9c21f520",
+      "itemId": "spark_plugs",
+      "date": "2025-06-29",
+      "km": 0,
+      "cost": 18000,
+      "shop": "Don Juan",
+      "notes": "",
+      "createdAt": "2026-06-11T04:11:16.965Z"
+    },
+    {
+      "id": "10d19a07-737e-4071-a970-9d0e2ebf5dd2",
+      "itemId": "front_brakes",
+      "date": "2026-02-21",
+      "km": 0,
+      "cost": 300000,
+      "shop": "Pro Autos",
+      "notes": "",
+      "createdAt": "2026-06-11T04:07:25.854Z"
+    },
+    {
+      "id": "6f1ce2d0-84a8-4a12-8781-2d886ffc4e2e",
+      "itemId": "tires",
+      "date": "2022-04-15",
+      "km": 0,
+      "cost": 220000,
+      "shop": "",
+      "notes": "",
+      "createdAt": "2026-06-11T04:05:25.549Z"
+    }
+  ],
+  "settings": {
+    "appTitle": "Mi Auto al Día",
+    "warnDays": 30,
+    "warnKm": 1000
+  }
+}
