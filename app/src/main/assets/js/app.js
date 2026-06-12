@@ -5,7 +5,7 @@ document.getElementById('vehicle-name').innerText = `${vehicle.name} - ${vehicle
 const dashboard = document.getElementById('dashboard');
 const maintenanceList = document.getElementById('maintenance-list');
 
-// Estado general (simplificado)
+// Estado general
 let total = data.items.length;
 let dueSoon = data.items.filter(i => i.intervalKm && i.intervalKm <= 5000).length;
 const divDash = document.createElement('div');
