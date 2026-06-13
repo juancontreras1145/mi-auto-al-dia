@@ -91,3 +91,11 @@ Usa la misma clave que ingresaste para `AUTO_KEYSTORE_PASSWORD`.
 Usa `auto` para `AUTO_KEY_ALIAS` si dejaste ese alias.
 
 No subas `auto-release.jks` ni `auto-release-base64.txt`.
+
+
+## V1.9.4
+- Agrega sistema Suspensión con amortiguadores delanteros y traseros.
+- Simplifica tarjetas de sistemas del vehículo.
+- Corrige aceite/filtro a 10.000 km / 1 año.
+- El chequeo rápido no reinicia la vida útil.
+- Sube versionCode a 14 para forzar actualización sobre v1.9.3.

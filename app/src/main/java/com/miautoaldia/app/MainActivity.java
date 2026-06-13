@@ -129,7 +129,11 @@ public class MainActivity extends Activity {
     }
 
     private boolean handleExternalUrl(String url) {
-        if (url == null) return false;
+        if (url == null) return true;
+
+        if (url.startsWith("file:///android_asset/")) {
+            return false;
+        }
 
         if (
                 url.startsWith("https://wa.me/")
@@ -141,7 +145,12 @@ public class MainActivity extends Activity {
             return true;
         }
 
-        return false;
+        if (url.startsWith("http://") || url.startsWith("https://")) {
+            openExternalBrowser(url);
+            return true;
+        }
+
+        return true;
     }
 
     private boolean tryOpenPackage(Uri uri, String packageName) {
@@ -574,9 +583,11 @@ public class MainActivity extends Activity {
         }
 
         webView.evaluateJavascript(
-                "(window.appBack ? window.appBack() : 'handled')",
+                "(window.appBack ? window.appBack() : 'exit')",
                 value -> {
-                    // La app maneja atrás dentro del WebView.
+                    if (value == null || value.contains("exit")) {
+                        MainActivity.super.onBackPressed();
+                    }
                 }
         );
     }
