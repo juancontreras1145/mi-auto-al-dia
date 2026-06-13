@@ -93,6 +93,13 @@ Usa `auto` para `AUTO_KEY_ALIAS` si dejaste ese alias.
 No subas `auto-release.jks` ni `auto-release-base64.txt`.
 
 
+
+## V1.9.5
+
+- Fuerza versionCode 15 y versionName 1.9.5 para evitar que Android/GitHub instalen una APK anterior.
+- Mantiene Suspensión con amortiguadores delanteros y traseros.
+- Mantiene tarjetas de sistemas compactas y chequeos rápidos sin reiniciar vencimiento.
+
 ## V1.9.4
 - Agrega sistema Suspensión con amortiguadores delanteros y traseros.
 - Simplifica tarjetas de sistemas del vehículo.
