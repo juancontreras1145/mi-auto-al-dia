@@ -186,12 +186,20 @@ function vehicleSrc(){const img=data?.vehicle?.image||DEFAULT_IMG; return ['vehi
 function escAttr(v){return esc(v).replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
 function save(){data.exportedAt=new Date().toISOString(); try{localStorage.setItem(STORAGE_KEY,JSON.stringify(data));}catch(e){alert('No se pudo guardar: hay demasiados datos o una imagen muy pesada.')}}
 
-function statusOf(item){const rec=isDoc(item)?lastRecord(item.id):lastServiceRecord(item.id); const kmRec=!isDoc(item)?lastServiceKmRecord(item.id):rec; const warnDays=Number(data.settings.warnDays||30); const warnKm=Number(data.settings.warnKm||1000); if(isDoc(item)){ if(!rec||!rec.expiryDate)return {state:'unknown',label:'Sin dato',detail:'Registra vencimiento'}; const d=daysUntil(rec.expiryDate); if(d===null)return {state:'unknown',label:'Sin dato',detail:'Fecha inválida'}; if(d<0)return {state:'critical',label:'Vencido',detail:`Hace ${Math.abs(d)} días`}; if(d<=warnDays)return {state:'warning',label:'Pronto',detail:`Faltan ${d} días`}; return {state:'ok',label:'Al día',detail:`Vence ${fmtDate(rec.expiryDate)}`}; }
+
+function humanDuration(days){
+ const abs=Math.abs(Number(days)||0);
+ if(abs>=365){const y=Math.floor(abs/365); return `${y} año${y!==1?'s':''}`;}
+ if(abs>=30){const m=Math.floor(abs/30); return `${m} mes${m!==1?'es':''}`;}
+ return `${abs} día${abs!==1?'s':''}`;
+}
+
+function statusOf(item){const rec=isDoc(item)?lastRecord(item.id):lastServiceRecord(item.id); const kmRec=!isDoc(item)?lastServiceKmRecord(item.id):rec; const warnDays=Number(data.settings.warnDays||30); const warnKm=Number(data.settings.warnKm||1000); if(isDoc(item)){ if(!rec||!rec.expiryDate)return {state:'unknown',label:'Sin dato',detail:'Registra vencimiento'}; const d=daysUntil(rec.expiryDate); if(d===null)return {state:'unknown',label:'Sin dato',detail:'Fecha inválida'}; if(d<0)return {state:'critical',label:'Vencido',detail:`Hace ${humanDuration(d)}`}; if(d<=warnDays)return {state:'warning',label:'Pronto',detail:`Faltan ${d} días`}; return {state:'ok',label:'Al día',detail:`Vence ${fmtDate(rec.expiryDate)}`}; }
  if(!rec)return {state:'unknown',label:'Sin dato',detail:'Sin registro'};
  let dueDate=item.intervalMonths?addMonths(rec.date,item.intervalMonths):null; let days=dueDate?daysUntil(dueDate):null; let kmLeft=null;
  if(item.intervalKm && kmRec && Number(kmRec.km)>0 && Number(data.vehicle.currentKm)>0) kmLeft=Number(item.intervalKm)-(Number(data.vehicle.currentKm)-Number(kmRec.km));
  let crit=false,warn=false,details=[];
- if(days!==null){ if(days<0)crit=true; else if(days<=warnDays)warn=true; details.push(days<0?`fecha vencida ${Math.abs(days)}d`:`${days}d`); }
+ if(days!==null){ if(days<0)crit=true; else if(days<=warnDays)warn=true; details.push(days<0?`fecha vencida ${humanDuration(days)}`:`${humanDuration(days)}`); }
  if(kmLeft!==null){ if(kmLeft<=0)crit=true; else if(kmLeft<=warnKm)warn=true; details.push(kmLeft<=0?`km vencido ${Math.abs(kmLeft)}`:`${Math.round(kmLeft).toLocaleString('es-CL')} km`); }
  if(crit)return {state:'critical',label:'Crítico',detail:details.join(' · ')||'Vencido'};
  if(warn)return {state:'warning',label:'Pronto',detail:details.join(' · ')||'Próximo'};
