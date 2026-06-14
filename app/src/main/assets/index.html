@@ -199,7 +199,7 @@ function statusOf(item){const rec=isDoc(item)?lastRecord(item.id):lastServiceRec
  let dueDate=item.intervalMonths?addMonths(rec.date,item.intervalMonths):null; let days=dueDate?daysUntil(dueDate):null; let kmLeft=null;
  if(item.intervalKm && kmRec && Number(kmRec.km)>0 && Number(data.vehicle.currentKm)>0) kmLeft=Number(item.intervalKm)-(Number(data.vehicle.currentKm)-Number(kmRec.km));
  let crit=false,warn=false,details=[];
- if(days!==null){ if(days<0)crit=true; else if(days<=warnDays)warn=true; details.push(days<0?`fecha vencida ${humanDuration(days)}`:`${humanDuration(days)}`); }
+ if(days!==null){ if(days<0)crit=true; else if(days<=warnDays)warn=true; details.length=0;details.push(days<0?`Vencida hace ${humanDuration(days)}`:`Próxima en ${humanDuration(days)}`); }
  if(kmLeft!==null){ if(kmLeft<=0)crit=true; else if(kmLeft<=warnKm)warn=true; details.push(kmLeft<=0?`km vencido ${Math.abs(kmLeft)}`:`${Math.round(kmLeft).toLocaleString('es-CL')} km`); }
  if(crit)return {state:'critical',label:'Crítico',detail:details.join(' · ')||'Vencido'};
  if(warn)return {state:'warning',label:'Pronto',detail:details.join(' · ')||'Próximo'};
