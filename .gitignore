@@ -1,4 +1,4 @@
-# Android/Gradle
+# Android / Gradle
 .gradle/
 build/
 app/build/
@@ -9,12 +9,21 @@ local.properties
 *.keystore
 *.p12
 *.pem
+*.key
 *NO-SUBIR*
 app/auto-release.jks
 app/*release*.jks
+mi-auto-keystore-base64.txt
+*keystore*base64*.txt
+*release*base64*.txt
+*.env
+.env*
+
+# Generated APK/AAB artifacts
+*.apk
+*.aab
 
 # OS/editor
 .DS_Store
 .idea/
 .vscode/
-mi-auto-keystore-base64.txt

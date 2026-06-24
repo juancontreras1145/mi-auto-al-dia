@@ -34,6 +34,9 @@ jobs:
         with:
           gradle-version: '8.7'
 
+      - name: Verificar archivos sensibles accidentales
+        run: bash scripts/verify-no-secrets.sh
+
       - name: Verificar secretos de firma
         env:
           AUTO_KEYSTORE_BASE64: ${{ secrets.AUTO_KEYSTORE_BASE64 }}
@@ -54,6 +57,9 @@ jobs:
           test -s app/auto-release.jks || (echo "No se pudo crear app/auto-release.jks" && exit 1)
           keytool -list -keystore app/auto-release.jks -storepass "$AUTO_KEYSTORE_PASSWORD" -alias "$AUTO_KEY_ALIAS" >/dev/null
 
+      - name: Lint release
+        run: gradle :app:lintRelease --no-daemon
+
       - name: Compilar APK release sin firmar
         run: gradle :app:assembleRelease --no-daemon
 
@@ -67,17 +73,20 @@ jobs:
           test -n "$UNSIGNED_APK" || (echo "No se encontro APK release para firmar" && exit 1)
           ZIPALIGN="$ANDROID_HOME/build-tools/35.0.0/zipalign"
           APKSIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
-          "$ZIPALIGN" -p -f 4 "$UNSIGNED_APK" release/MiAutoAlDia-${GITHUB_REF_NAME}-aligned.apk
+          "$ZIPALIGN" -p -f 4 "$UNSIGNED_APK" "release/MiAutoAlDia-${GITHUB_REF_NAME}-aligned.apk"
           "$APKSIGNER" sign \
             --ks app/auto-release.jks \
             --ks-pass pass:"$AUTO_KEYSTORE_PASSWORD" \
             --ks-key-alias "$AUTO_KEY_ALIAS" \
             --key-pass pass:"$AUTO_KEYSTORE_PASSWORD" \
-            --out release/MiAutoAlDia-${GITHUB_REF_NAME}.apk \
-            release/MiAutoAlDia-${GITHUB_REF_NAME}-aligned.apk
-          "$APKSIGNER" verify --verbose release/MiAutoAlDia-${GITHUB_REF_NAME}.apk
+            --out "release/MiAutoAlDia-${GITHUB_REF_NAME}.apk" \
+            "release/MiAutoAlDia-${GITHUB_REF_NAME}-aligned.apk"
+          "$APKSIGNER" verify --verbose "release/MiAutoAlDia-${GITHUB_REF_NAME}.apk"
+          sha256sum "release/MiAutoAlDia-${GITHUB_REF_NAME}.apk" > "release/MiAutoAlDia-${GITHUB_REF_NAME}.apk.sha256"
 
       - name: Publicar APK en GitHub Releases
         uses: softprops/action-gh-release@v2
         with:
-          files: release/MiAutoAlDia-${{ github.ref_name }}.apk
+          files: |
+            release/MiAutoAlDia-${{ github.ref_name }}.apk
+            release/MiAutoAlDia-${{ github.ref_name }}.apk.sha256

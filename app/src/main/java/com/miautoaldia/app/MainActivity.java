@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
 import android.view.View;
@@ -12,7 +13,6 @@ import android.view.Window;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
-import android.webkit.WebChromeClient.FileChooserParams;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -22,23 +22,30 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Locale;
 
 public class MainActivity extends Activity {
     private static final int FILE_CHOOSER_REQUEST = 1001;
     private static final int SAVE_JSON_REQUEST = 1002;
     private static final int SAVE_CSV_REQUEST = 1003;
+
+    private static final int MAX_TEXT_BYTES = 10 * 1024 * 1024;
+    private static final int MAX_IMAGE_BYTES = 6 * 1024 * 1024;
+    private static final String GITHUB_OWNER = "juancontreras1145";
+    private static final String GITHUB_REPO = "mi-auto-al-dia";
+    private static final String GITHUB_REPO_PATH = "/" + GITHUB_OWNER + "/" + GITHUB_REPO + "/";
 
     private WebView webView;
     private ValueCallback<Uri[]> filePathCallback;
@@ -49,7 +56,6 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         webView = new WebView(this);
@@ -61,8 +67,18 @@ public class MainActivity extends Activity {
         settings.setDomStorageEnabled(true);
         settings.setDatabaseEnabled(true);
         settings.setMediaPlaybackRequiresUserGesture(false);
-        settings.setAllowFileAccess(true);
-        settings.setAllowContentAccess(true);
+
+        // El contenido principal es local. Restringimos acceso a archivos/contenido para reducir
+        // superficie ante XSS local o HTML importado accidentalmente. android_asset sigue disponible.
+        settings.setAllowFileAccess(false);
+        settings.setAllowContentAccess(false);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            settings.setAllowFileAccessFromFileURLs(false);
+            settings.setAllowUniversalAccessFromFileURLs(false);
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            settings.setSafeBrowsingEnabled(true);
+        }
 
         webView.setWebViewClient(new WebViewClient() {
             @Override
@@ -72,7 +88,7 @@ public class MainActivity extends Activity {
 
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                return handleExternalUrl(request.getUrl().toString());
+                return handleExternalUrl(request == null || request.getUrl() == null ? null : request.getUrl().toString());
             }
         });
 
@@ -92,12 +108,11 @@ public class MainActivity extends Activity {
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
-                intent.setType("*/*");
+                intent.setType("application/json");
                 intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{
                         "application/json",
                         "text/json",
-                        "text/plain",
-                        "*/*"
+                        "text/plain"
                 });
 
                 try {
@@ -107,7 +122,6 @@ public class MainActivity extends Activity {
                     Toast.makeText(MainActivity.this, "No se pudo abrir el selector de archivos", Toast.LENGTH_LONG).show();
                     return false;
                 }
-
                 return true;
             }
         });
@@ -123,29 +137,37 @@ public class MainActivity extends Activity {
     }
 
     private void setupBars() {
-        getWindow().setStatusBarColor(Color.parseColor("#000000"));
-        getWindow().setNavigationBarColor(Color.parseColor("#000000"));
-        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+        Window window = getWindow();
+        window.setStatusBarColor(Color.parseColor("#000000"));
+        window.setNavigationBarColor(Color.parseColor("#000000"));
+        window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
     }
 
     private boolean handleExternalUrl(String url) {
-        if (url == null) return true;
+        if (url == null || url.trim().isEmpty()) return true;
+
+        Uri uri;
+        try {
+            uri = Uri.parse(url.trim());
+        } catch (Exception e) {
+            return true;
+        }
+
+        String scheme = lower(uri.getScheme());
+        String host = lower(uri.getHost());
+        String path = uri.getPath() == null ? "" : uri.getPath();
 
         if (url.startsWith("file:///android_asset/")) {
             return false;
         }
 
-        if (
-                url.startsWith("https://wa.me/")
-                        || url.startsWith("http://wa.me/")
-                        || url.startsWith("https://api.whatsapp.com/")
-                        || url.startsWith("whatsapp://")
-        ) {
-            openExternalWhatsapp(Uri.parse(url));
+        if ("whatsapp".equals(scheme)
+                || ("https".equals(scheme) && ("wa.me".equals(host) || "api.whatsapp.com".equals(host)))) {
+            openExternalWhatsapp(uri);
             return true;
         }
 
-        if (url.startsWith("http://") || url.startsWith("https://")) {
+        if (("http".equals(scheme) || "https".equals(scheme)) && isAllowedPublicNavigation(uri, path)) {
             openExternalBrowser(url);
             return true;
         }
@@ -153,26 +175,44 @@ public class MainActivity extends Activity {
         return true;
     }
 
+    private boolean isAllowedPublicNavigation(Uri uri, String path) {
+        String scheme = lower(uri.getScheme());
+        String host = lower(uri.getHost());
+        if (!"https".equals(scheme)) return false;
+        return "github.com".equals(host) && path.startsWith(GITHUB_REPO_PATH);
+    }
+
+    private boolean isAllowedUpdateUri(Uri uri) {
+        if (uri == null) return false;
+        String scheme = lower(uri.getScheme());
+        String host = lower(uri.getHost());
+        String path = uri.getPath() == null ? "" : uri.getPath();
+        return "https".equals(scheme)
+                && "github.com".equals(host)
+                && (path.startsWith(GITHUB_REPO_PATH + "releases/") || path.equals(GITHUB_REPO_PATH + "releases"));
+    }
+
+    private String lower(String value) {
+        return value == null ? "" : value.toLowerCase(Locale.US);
+    }
+
     private boolean tryOpenPackage(Uri uri, String packageName) {
         try {
             Intent intent = new Intent(Intent.ACTION_VIEW, uri);
             intent.setPackage(packageName);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
             if (intent.resolveActivity(getPackageManager()) != null) {
                 startActivity(intent);
                 return true;
             }
         } catch (Exception ignored) {
         }
-
         return false;
     }
 
     private void openExternalWhatsapp(Uri uri) {
         if (tryOpenPackage(uri, "com.whatsapp")) return;
         if (tryOpenPackage(uri, "com.whatsapp.w4b")) return;
-
         try {
             startActivity(new Intent(Intent.ACTION_VIEW, uri));
         } catch (Exception e) {
@@ -186,7 +226,6 @@ public class MainActivity extends Activity {
                 Toast.makeText(this, "No hay enlace de descarga", Toast.LENGTH_LONG).show();
                 return;
             }
-
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
@@ -207,10 +246,7 @@ public class MainActivity extends Activity {
             connection.setReadTimeout(12000);
 
             int code = connection.getResponseCode();
-            InputStream stream = code >= 200 && code < 300
-                    ? connection.getInputStream()
-                    : connection.getErrorStream();
-
+            InputStream stream = code >= 200 && code < 300 ? connection.getInputStream() : connection.getErrorStream();
             if (stream == null) {
                 throw new Exception("GitHub respondió " + code);
             }
@@ -222,49 +258,56 @@ public class MainActivity extends Activity {
                     builder.append(line);
                 }
             }
-
             if (code < 200 || code >= 300) {
                 throw new Exception("GitHub respondió " + code);
             }
-
             return builder.toString();
         } finally {
             if (connection != null) connection.disconnect();
         }
     }
 
-
     private JSONObject buildReleasePayload(String tagName, String name, String htmlUrl, String apkName, String apkUrl) throws Exception {
         JSONObject payload = new JSONObject();
         payload.put("ok", true);
-        payload.put("tagName", tagName == null ? "" : tagName);
-        payload.put("name", name == null ? "" : name);
-        payload.put("htmlUrl", htmlUrl == null ? "" : htmlUrl);
-        payload.put("apkName", apkName == null ? "" : apkName);
-        payload.put("apkUrl", apkUrl == null || apkUrl.isEmpty() ? htmlUrl : apkUrl);
+        payload.put("tagName", safe(tagName));
+        payload.put("name", safe(name));
+        payload.put("htmlUrl", safe(htmlUrl));
+        payload.put("apkName", safe(apkName));
+        payload.put("apkUrl", safe(apkUrl).isEmpty() ? safe(htmlUrl) : safe(apkUrl));
         return payload;
+    }
+
+    private String safe(String value) {
+        return value == null ? "" : value;
     }
 
     private JSONObject parseGithubReleaseJson(String json) throws Exception {
         JSONObject release = new JSONObject(json);
         JSONArray assets = release.optJSONArray("assets");
-
         String apkUrl = "";
         String apkName = "";
+
         if (assets != null) {
             for (int i = 0; i < assets.length(); i++) {
                 JSONObject asset = assets.optJSONObject(i);
                 if (asset == null) continue;
+
                 String name = asset.optString("name", "");
-                if (name.toLowerCase().endsWith(".apk")) {
+                String downloadUrl = asset.optString("browser_download_url", "");
+                if (name.toLowerCase(Locale.US).endsWith(".apk") && isAllowedUpdateUri(Uri.parse(downloadUrl))) {
                     apkName = name;
-                    apkUrl = asset.optString("browser_download_url", "");
+                    apkUrl = downloadUrl;
                     break;
                 }
             }
         }
 
         String htmlUrl = release.optString("html_url", "");
+        if (!htmlUrl.isEmpty() && !isAllowedUpdateUri(Uri.parse(htmlUrl))) {
+            htmlUrl = "";
+        }
+
         return buildReleasePayload(
                 release.optString("tag_name", ""),
                 release.optString("name", ""),
@@ -275,7 +318,7 @@ public class MainActivity extends Activity {
     }
 
     private JSONObject resolveLatestReleaseByRedirect() throws Exception {
-        String latestUrl = "https://github.com/juancontreras1145/mi-auto-al-dia/releases/latest";
+        String latestUrl = "https://github.com/" + GITHUB_OWNER + "/" + GITHUB_REPO + "/releases/latest";
         String current = latestUrl;
 
         for (int i = 0; i < 5; i++) {
@@ -291,10 +334,13 @@ public class MainActivity extends Activity {
 
                 int code = connection.getResponseCode();
                 String location = connection.getHeaderField("Location");
-
                 if (code >= 300 && code < 400 && location != null && !location.trim().isEmpty()) {
                     URL next = new URL(url, location);
                     current = next.toString();
+                    Uri nextUri = Uri.parse(current);
+                    if (!isAllowedUpdateUri(nextUri)) {
+                        throw new Exception("Redirección de actualización no permitida");
+                    }
                     continue;
                 }
 
@@ -308,9 +354,9 @@ public class MainActivity extends Activity {
                     if (hash >= 0) tagName = tagName.substring(0, hash);
 
                     if (!tagName.trim().isEmpty()) {
-                        String htmlUrl = "https://github.com/juancontreras1145/mi-auto-al-dia/releases/tag/" + tagName;
+                        String htmlUrl = "https://github.com/" + GITHUB_OWNER + "/" + GITHUB_REPO + "/releases/tag/" + tagName;
                         String apkName = "MiAutoAlDia-" + tagName + ".apk";
-                        String apkUrl = "https://github.com/juancontreras1145/mi-auto-al-dia/releases/download/" + tagName + "/" + apkName;
+                        String apkUrl = "https://github.com/" + GITHUB_OWNER + "/" + GITHUB_REPO + "/releases/download/" + tagName + "/" + apkName;
                         return buildReleasePayload(tagName, tagName, htmlUrl, apkName, apkUrl);
                     }
                 }
@@ -320,7 +366,6 @@ public class MainActivity extends Activity {
                 if (connection != null) connection.disconnect();
             }
         }
-
         throw new Exception("Demasiadas redirecciones de GitHub");
     }
 
@@ -337,10 +382,9 @@ public class MainActivity extends Activity {
             JSONObject payload = new JSONObject();
             try {
                 try {
-                    String json = readUrl("https://api.github.com/repos/juancontreras1145/mi-auto-al-dia/releases/latest");
+                    String json = readUrl("https://api.github.com/repos/" + GITHUB_OWNER + "/" + GITHUB_REPO + "/releases/latest");
                     payload = parseGithubReleaseJson(json);
                 } catch (Exception apiError) {
-                    // Fallback para cuando GitHub API responde 403 por limite/rate limit.
                     try {
                         payload = resolveLatestReleaseByRedirect();
                         payload.put("note", "Consulta realizada por enlace publico porque GitHub API fallo: " + apiError.getMessage());
@@ -356,18 +400,15 @@ public class MainActivity extends Activity {
                 } catch (Exception ignored) {
                 }
             }
-
             sendUpdateResult(payload);
         }).start();
     }
 
     private String normalizePhone(String phone) {
         String digits = phone == null ? "" : phone.replaceAll("[^0-9]", "");
-
         if (digits.length() == 8) return "569" + digits;
         if (digits.length() == 9 && digits.startsWith("9")) return "56" + digits;
         if (digits.startsWith("56")) return digits;
-
         return digits;
     }
 
@@ -383,7 +424,6 @@ public class MainActivity extends Activity {
             if (text != null && !text.trim().isEmpty()) {
                 encoded = "?text=" + URLEncoder.encode(text, "UTF-8").replace("+", "%20");
             }
-
             openExternalWhatsapp(Uri.parse("https://wa.me/" + digits + encoded));
         } catch (Exception e) {
             Toast.makeText(this, "No se pudo abrir WhatsApp", Toast.LENGTH_LONG).show();
@@ -396,14 +436,12 @@ public class MainActivity extends Activity {
             target.setPackage(packageName);
             target.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             grantUriPermission(packageName, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-
             if (target.resolveActivity(getPackageManager()) != null) {
                 startActivity(target);
                 return true;
             }
         } catch (Exception ignored) {
         }
-
         return false;
     }
 
@@ -412,21 +450,17 @@ public class MainActivity extends Activity {
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.setType("image/png");
             intent.putExtra(Intent.EXTRA_STREAM, uri);
-
             // Experimental/no oficial: algunas versiones de WhatsApp respetan este JID.
             intent.putExtra("jid", digits + "@s.whatsapp.net");
-
             intent.setPackage(packageName);
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             grantUriPermission(packageName, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-
             if (intent.resolveActivity(getPackageManager()) != null) {
                 startActivity(intent);
                 return true;
             }
         } catch (Exception ignored) {
         }
-
         return false;
     }
 
@@ -435,44 +469,51 @@ public class MainActivity extends Activity {
         baseIntent.setType("image/png");
         baseIntent.putExtra(Intent.EXTRA_STREAM, uri);
         baseIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-
         if (openShareTarget(baseIntent, uri, "com.whatsapp")) return;
         if (openShareTarget(baseIntent, uri, "com.whatsapp.w4b")) return;
-
         startActivity(Intent.createChooser(baseIntent, "Compartir boleta"));
     }
 
     private File writeCacheFile(String folderName, String fileName, String content) throws Exception {
-        String safeName = fileName == null || fileName.trim().isEmpty()
-                ? "respaldo-mi-auto.json"
-                : fileName.replaceAll("[^a-zA-Z0-9._-]", "-");
-
+        ensureTextWithinLimit(content);
+        String safeName = sanitizeFileName(fileName, "respaldo-mi-auto.json");
         File dir = new File(getCacheDir(), folderName);
-        if (!dir.exists()) dir.mkdirs();
-
+        if (!dir.exists() && !dir.mkdirs()) {
+            throw new Exception("No se pudo crear carpeta temporal");
+        }
         File file = new File(dir, safeName);
         try (FileOutputStream out = new FileOutputStream(file)) {
             out.write(content.getBytes("UTF-8"));
         }
-
         return file;
+    }
+
+    private String sanitizeFileName(String fileName, String fallback) {
+        String value = fileName == null || fileName.trim().isEmpty() ? fallback : fileName;
+        value = value.replaceAll("[^a-zA-Z0-9._-]", "-");
+        if (value.length() > 80) {
+            value = value.substring(0, 80);
+        }
+        return value;
+    }
+
+    private void ensureTextWithinLimit(String value) throws Exception {
+        if (value == null) {
+            throw new Exception("Contenido vacío");
+        }
+        if (value.getBytes("UTF-8").length > MAX_TEXT_BYTES) {
+            throw new Exception("Archivo demasiado grande");
+        }
     }
 
     private void shareJsonFile(String fileName, String json) {
         try {
             File file = writeCacheFile("json", fileName, json);
-
-            Uri uri = FileProvider.getUriForFile(
-                    this,
-                    getPackageName() + ".fileprovider",
-                    file
-            );
-
+            Uri uri = FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", file);
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.setType("application/json");
             intent.putExtra(Intent.EXTRA_STREAM, uri);
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-
             startActivity(Intent.createChooser(intent, "Compartir respaldo JSON"));
         } catch (Exception e) {
             Toast.makeText(this, "No se pudo compartir el JSON", Toast.LENGTH_LONG).show();
@@ -481,13 +522,12 @@ public class MainActivity extends Activity {
 
     private void saveJsonFile(String fileName, String json) {
         try {
+            ensureTextWithinLimit(json);
             pendingJsonContent = json;
-
             Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             intent.setType("application/json");
-            intent.putExtra(Intent.EXTRA_TITLE, fileName == null ? "respaldo-mi-auto.json" : fileName);
-
+            intent.putExtra(Intent.EXTRA_TITLE, sanitizeFileName(fileName, "respaldo-mi-auto.json"));
             startActivityForResult(intent, SAVE_JSON_REQUEST);
         } catch (Exception e) {
             Toast.makeText(this, "No se pudo abrir guardar JSON", Toast.LENGTH_LONG).show();
@@ -496,13 +536,12 @@ public class MainActivity extends Activity {
 
     private void saveCsvFile(String fileName, String csv) {
         try {
+            ensureTextWithinLimit(csv);
             pendingCsvContent = csv;
-
             Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             intent.setType("text/csv");
-            intent.putExtra(Intent.EXTRA_TITLE, fileName == null ? "mi-auto-historial.csv" : fileName);
-
+            intent.putExtra(Intent.EXTRA_TITLE, sanitizeFileName(fileName, "mi-auto-historial.csv"));
             startActivityForResult(intent, SAVE_CSV_REQUEST);
         } catch (Exception e) {
             Toast.makeText(this, "No se pudo abrir guardar CSV", Toast.LENGTH_LONG).show();
@@ -515,63 +554,49 @@ public class MainActivity extends Activity {
 
         if (requestCode == FILE_CHOOSER_REQUEST) {
             if (filePathCallback == null) return;
-
             Uri[] results = null;
-
             if (resultCode == Activity.RESULT_OK && dataIntent != null) {
                 Uri uri = dataIntent.getData();
                 if (uri != null) {
                     results = new Uri[]{uri};
                     try {
-                        getContentResolver().takePersistableUriPermission(
-                                uri,
-                                Intent.FLAG_GRANT_READ_URI_PERMISSION
-                        );
+                        getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     } catch (Exception ignored) {
                     }
                 }
             }
-
             filePathCallback.onReceiveValue(results);
             filePathCallback = null;
             return;
         }
 
         if (requestCode == SAVE_JSON_REQUEST) {
-            if (resultCode == Activity.RESULT_OK && dataIntent != null && dataIntent.getData() != null && pendingJsonContent != null) {
-                try {
-                    Uri uri = dataIntent.getData();
-                    try (OutputStream out = getContentResolver().openOutputStream(uri)) {
-                        if (out != null) {
-                            out.write(pendingJsonContent.getBytes("UTF-8"));
-                            Toast.makeText(this, "JSON guardado", Toast.LENGTH_LONG).show();
-                        }
-                    }
-                } catch (Exception e) {
-                    Toast.makeText(this, "No se pudo escribir el JSON", Toast.LENGTH_LONG).show();
-                }
-            }
-
+            writePendingContent(dataIntent, resultCode, pendingJsonContent, "JSON guardado", "No se pudo escribir el JSON");
             pendingJsonContent = null;
             return;
         }
 
         if (requestCode == SAVE_CSV_REQUEST) {
-            if (resultCode == Activity.RESULT_OK && dataIntent != null && dataIntent.getData() != null && pendingCsvContent != null) {
-                try {
-                    Uri uri = dataIntent.getData();
-                    try (OutputStream out = getContentResolver().openOutputStream(uri)) {
-                        if (out != null) {
-                            out.write(pendingCsvContent.getBytes("UTF-8"));
-                            Toast.makeText(this, "CSV guardado", Toast.LENGTH_LONG).show();
-                        }
-                    }
-                } catch (Exception e) {
-                    Toast.makeText(this, "No se pudo escribir el CSV", Toast.LENGTH_LONG).show();
+            writePendingContent(dataIntent, resultCode, pendingCsvContent, "CSV guardado", "No se pudo escribir el CSV");
+            pendingCsvContent = null;
+        }
+    }
+
+    private void writePendingContent(@Nullable Intent dataIntent, int resultCode, @Nullable String content, String okMessage, String errorMessage) {
+        if (resultCode != Activity.RESULT_OK || dataIntent == null || dataIntent.getData() == null || content == null) {
+            return;
+        }
+
+        try {
+            Uri uri = dataIntent.getData();
+            try (OutputStream out = getContentResolver().openOutputStream(uri)) {
+                if (out != null) {
+                    out.write(content.getBytes("UTF-8"));
+                    Toast.makeText(this, okMessage, Toast.LENGTH_LONG).show();
                 }
             }
-
-            pendingCsvContent = null;
+        } catch (Exception e) {
+            Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
         }
     }
 
@@ -582,14 +607,55 @@ public class MainActivity extends Activity {
             return;
         }
 
-        webView.evaluateJavascript(
-                "(window.appBack ? window.appBack() : 'exit')",
-                value -> {
-                    if (value == null || value.contains("exit")) {
-                        MainActivity.super.onBackPressed();
-                    }
-                }
-        );
+        webView.evaluateJavascript("(window.appBack ? window.appBack() : 'exit')", value -> {
+            if (value == null || value.contains("exit")) {
+                MainActivity.super.onBackPressed();
+            }
+        });
+    }
+
+    private byte[] decodeDataImage(String dataUrl) throws Exception {
+        if (dataUrl == null) {
+            throw new Exception("Imagen vacía");
+        }
+        if (!dataUrl.startsWith("data:image/png;base64,") && !dataUrl.startsWith("data:image/jpeg;base64,")) {
+            throw new Exception("Formato de imagen no permitido");
+        }
+
+        int comma = dataUrl.indexOf(',');
+        if (comma < 0 || comma == dataUrl.length() - 1) {
+            throw new Exception("Imagen inválida");
+        }
+
+        String base64 = dataUrl.substring(comma + 1);
+        // Aproximación defensiva antes de decodificar.
+        if (base64.length() > MAX_IMAGE_BYTES * 2) {
+            throw new Exception("Imagen demasiado grande");
+        }
+
+        byte[] bytes = Base64.decode(base64, Base64.DEFAULT);
+        if (bytes.length > MAX_IMAGE_BYTES) {
+            throw new Exception("Imagen demasiado grande");
+        }
+        return bytes;
+    }
+
+    private Uri writeReceiptImage(String dataUrl, String fileName) throws Exception {
+        byte[] bytes = decodeDataImage(dataUrl);
+        String safeName = sanitizeFileName(fileName, "boleta.png");
+        if (!safeName.toLowerCase(Locale.US).endsWith(".png") && !safeName.toLowerCase(Locale.US).endsWith(".jpg") && !safeName.toLowerCase(Locale.US).endsWith(".jpeg")) {
+            safeName = safeName + ".png";
+        }
+
+        File dir = new File(getCacheDir(), "receipts");
+        if (!dir.exists() && !dir.mkdirs()) {
+            throw new Exception("No se pudo crear carpeta temporal");
+        }
+        File file = new File(dir, safeName);
+        try (FileOutputStream out = new FileOutputStream(file)) {
+            out.write(bytes);
+        }
+        return FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", file);
     }
 
     public static class AndroidBridge {
@@ -615,7 +681,7 @@ public class MainActivity extends Activity {
             try {
                 android.content.pm.PackageInfo info = activity.getPackageManager()
                         .getPackageInfo(activity.getPackageName(), 0);
-                if (android.os.Build.VERSION.SDK_INT >= 28) {
+                if (Build.VERSION.SDK_INT >= 28) {
                     return (int) info.getLongVersionCode();
                 }
                 return info.versionCode;
@@ -631,7 +697,18 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public void openUpdateUrl(String url) {
-            activity.runOnUiThread(() -> activity.openExternalBrowser(url));
+            activity.runOnUiThread(() -> {
+                Uri uri = null;
+                try {
+                    uri = Uri.parse(url);
+                } catch (Exception ignored) {
+                }
+                if (activity.isAllowedUpdateUri(uri)) {
+                    activity.openExternalBrowser(url);
+                } else {
+                    Toast.makeText(activity, "Enlace de actualización no permitido", Toast.LENGTH_LONG).show();
+                }
+            });
         }
 
         @JavascriptInterface
@@ -654,88 +731,32 @@ public class MainActivity extends Activity {
             activity.runOnUiThread(() -> activity.shareJsonFile(fileName, json));
         }
 
-
         @JavascriptInterface
         public void shareImageToPhone(String dataUrl, String fileName, String phone) {
             new Thread(() -> {
                 try {
-                    String safeName = fileName == null || fileName.trim().isEmpty()
-                            ? "boleta.png"
-                            : fileName.replaceAll("[^a-zA-Z0-9._-]", "-");
-
-                    String base64 = dataUrl;
-                    int comma = dataUrl.indexOf(",");
-                    if (comma >= 0) {
-                        base64 = dataUrl.substring(comma + 1);
-                    }
-
-                    byte[] bytes = Base64.decode(base64, Base64.DEFAULT);
-
-                    File dir = new File(activity.getCacheDir(), "receipts");
-                    if (!dir.exists()) dir.mkdirs();
-
-                    File file = new File(dir, safeName);
-                    try (FileOutputStream out = new FileOutputStream(file)) {
-                        out.write(bytes);
-                    }
-
-                    Uri uri = FileProvider.getUriForFile(
-                            activity,
-                            activity.getPackageName() + ".fileprovider",
-                            file
-                    );
-
+                    Uri uri = activity.writeReceiptImage(dataUrl, fileName);
                     String digits = activity.normalizePhone(phone);
-
                     activity.runOnUiThread(() -> {
                         try {
                             if (!digits.isEmpty() && activity.tryOpenImageToJid(uri, digits, "com.whatsapp")) return;
                             if (!digits.isEmpty() && activity.tryOpenImageToJid(uri, digits, "com.whatsapp.w4b")) return;
-
                             activity.openImageShare(uri);
                         } catch (Exception e) {
                             activity.openImageShare(uri);
                         }
                     });
                 } catch (Exception e) {
-                    activity.runOnUiThread(() ->
-                            Toast.makeText(activity, "No se pudo preparar la boleta", Toast.LENGTH_LONG).show()
-                    );
+                    activity.runOnUiThread(() -> Toast.makeText(activity, "No se pudo preparar la boleta", Toast.LENGTH_LONG).show());
                 }
             }).start();
         }
-
 
         @JavascriptInterface
         public void shareImage(String dataUrl, String fileName) {
             new Thread(() -> {
                 try {
-                    String safeName = fileName == null || fileName.trim().isEmpty()
-                            ? "boleta.png"
-                            : fileName.replaceAll("[^a-zA-Z0-9._-]", "-");
-
-                    String base64 = dataUrl;
-                    int comma = dataUrl.indexOf(",");
-                    if (comma >= 0) {
-                        base64 = dataUrl.substring(comma + 1);
-                    }
-
-                    byte[] bytes = Base64.decode(base64, Base64.DEFAULT);
-
-                    File dir = new File(activity.getCacheDir(), "receipts");
-                    if (!dir.exists()) dir.mkdirs();
-
-                    File file = new File(dir, safeName);
-                    try (FileOutputStream out = new FileOutputStream(file)) {
-                        out.write(bytes);
-                    }
-
-                    Uri uri = FileProvider.getUriForFile(
-                            activity,
-                            activity.getPackageName() + ".fileprovider",
-                            file
-                    );
-
+                    Uri uri = activity.writeReceiptImage(dataUrl, fileName);
                     activity.runOnUiThread(() -> {
                         try {
                             activity.openImageShare(uri);
@@ -744,9 +765,7 @@ public class MainActivity extends Activity {
                         }
                     });
                 } catch (Exception e) {
-                    activity.runOnUiThread(() ->
-                            Toast.makeText(activity, "No se pudo preparar la boleta", Toast.LENGTH_LONG).show()
-                    );
+                    activity.runOnUiThread(() -> Toast.makeText(activity, "No se pudo preparar la boleta", Toast.LENGTH_LONG).show());
                 }
             }).start();
         }
