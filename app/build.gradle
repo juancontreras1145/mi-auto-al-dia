@@ -10,8 +10,8 @@ android {
         applicationId "com.miautoaldia.app"
         minSdk 23
         targetSdk 35
-        versionCode 29
-        versionName "2.1.7"
+        versionCode 30
+        versionName "2.1.8"
     }
 
     buildTypes {
