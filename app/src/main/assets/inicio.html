@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>Mi Auto al Día - Inicio</title>
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div class="app">
+  <section id="home" class="screen active"></section>
+  <section id="parts" class="screen"></section>
+  <section id="docs" class="screen"></section>
+  <section id="history" class="screen"></section>
+  <section id="settings" class="screen"></section>
+</div>
+<nav class="nav" id="nav">
+  <button onclick="go('home')"><span class="ico">⌂</span><span>Inicio</span></button>
+  <button onclick="go('parts')"><span class="ico">🧰</span><span>Mantenciones</span></button>
+  <button class="nav-add" onclick="openRegister()"><span class="ico">＋</span><span>Agregar</span></button>
+  <button onclick="go('docs')"><span class="ico">🗓</span><span>Agenda</span></button>
+  <button onclick="go('settings')"><span class="ico">⋯</span><span>Más</span></button>
+</nav>
+<div id="modalRoot"></div><div id="toast" class="toast"></div>
+<script>window.INITIAL_VIEW='home';</script>
+<script src="js/app.js"></script>
+</body>
+</html>
