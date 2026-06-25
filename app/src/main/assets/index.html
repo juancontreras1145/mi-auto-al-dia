@@ -369,5 +369,433 @@ function appBack(){if(document.getElementById('modalRoot').innerHTML){closeModal
 window.appBack=appBack;
 render();
 </script>
+<script id="mantenciones-inspeccion-v217">
+(function(){
+  "use strict";
+  const OVERLAY_ID = "mi-mantenciones-inspeccion-v217";
+  const STYLE_ID = "mi-mantenciones-inspeccion-v217-style";
+
+  function norm(s){ return (s || "").toString().trim().toLowerCase(); }
+  function esc(s){ return (s ?? "").toString().replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+  function todayISO(){ return new Date().toISOString().slice(0,10); }
+  function uuid(){ return "ir-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2,9); }
+  function fmtKm(n){ n = Number(n || 0); return n.toLocaleString("es-CL") + " km"; }
+
+  function addMonths(date, months){
+    if(!date || months == null) return null;
+    const d = new Date(date + "T00:00:00");
+    if(Number.isNaN(d.getTime())) return null;
+    d.setMonth(d.getMonth() + Number(months));
+    return d;
+  }
+  function parseDate(s){
+    if(!s) return null;
+    const d = new Date(String(s).slice(0,10) + "T00:00:00");
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+  function daysBetween(a,b){ return Math.round((a.getTime() - b.getTime()) / 86400000); }
+
+  function findData(){
+    let best = null;
+    for(let i=0;i<localStorage.length;i++){
+      const key = localStorage.key(i);
+      try{
+        const obj = JSON.parse(localStorage.getItem(key));
+        if(obj && Array.isArray(obj.items) && Array.isArray(obj.records) && obj.vehicle){
+          best = {key, data: obj};
+          break;
+        }
+      }catch(e){}
+    }
+    if(best) return best;
+
+    return {
+      key: null,
+      data: {
+        vehicle:{name:"Fiat Punto",year:"2017",plate:"JHFB94",currentKm:148500},
+        settings:{warnDays:30,warnKm:1000},
+        items:[
+          {id:"battery",name:"Batería / carga",category:"Motor",intervalKm:50000,intervalMonths:60},
+          {id:"oil",name:"Aceite motor",category:"Motor",intervalKm:10000,intervalMonths:12},
+          {id:"oil_filter",name:"Filtro de aceite",category:"Motor",intervalKm:10000,intervalMonths:12},
+          {id:"coolant",name:"Refrigerante motor / nivel",category:"Fluidos",intervalKm:1000},
+          {id:"alignment",name:"Alineación y balanceo",category:"Ruedas",intervalKm:10000,intervalMonths:6},
+          {id:"front_brakes",name:"Frenos delanteros",category:"Frenos",intervalKm:15000,intervalMonths:12},
+          {id:"lights_front",name:"Luces delanteras",category:"Luces",intervalKm:15000,intervalMonths:12}
+        ],
+        records:[]
+      }
+    };
+  }
+
+  let store = findData();
+  let data = store.data;
+  let selections = {};
+  let activeCategory = null;
+
+  function lastRecords(){
+    const map = {};
+    (data.records || []).forEach(r => {
+      if(!r || !r.itemId) return;
+      const d = parseDate(r.date || r.createdAt);
+      if(!d) return;
+      if(!map[r.itemId] || d > map[r.itemId]._d) map[r.itemId] = Object.assign({}, r, {_d:d});
+    });
+    return map;
+  }
+
+  function enrich(){
+    const lr = lastRecords();
+    const now = new Date();
+    const currentKm = Number(data.vehicle && data.vehicle.currentKm || 0);
+    const warnDays = Number(data.settings && data.settings.warnDays || 30);
+    const warnKm = Number(data.settings && data.settings.warnKm || 1000);
+
+    return (data.items || []).filter(i => !i.document).map(item => {
+      const last = lr[item.id];
+      let status = "sin dato";
+      let priority = 3;
+      let detail = "Sin registro";
+      let dueDate = null;
+      let dueKm = null;
+
+      if(last){
+        if(item.intervalMonths != null) dueDate = addMonths(last.date || last.createdAt, item.intervalMonths);
+        if(item.intervalKm != null && last.km != null) dueKm = Number(last.km || 0) + Number(item.intervalKm || 0);
+        const daysLeft = dueDate ? daysBetween(dueDate, now) : null;
+        const kmLeft = dueKm ? dueKm - currentKm : null;
+        const isOver = (daysLeft != null && daysLeft < 0) || (kmLeft != null && kmLeft < 0);
+        const isNear = (daysLeft != null && daysLeft <= warnDays && daysLeft >= 0) || (kmLeft != null && kmLeft <= warnKm && kmLeft >= 0);
+
+        if(isOver){
+          status = "vencida"; priority = 0;
+          const parts = [];
+          if(daysLeft != null && daysLeft < 0) parts.push("hace " + Math.abs(daysLeft) + " días");
+          if(kmLeft != null && kmLeft < 0) parts.push(fmtKm(Math.abs(kmLeft)) + " vencido");
+          detail = parts.join(" · ") || "Vencida";
+        }else if(isNear){
+          status = "próxima"; priority = 1;
+          const parts = [];
+          if(daysLeft != null && daysLeft >= 0) parts.push("en " + daysLeft + " días");
+          if(kmLeft != null && kmLeft >= 0) parts.push("en " + fmtKm(kmLeft));
+          detail = parts.join(" · ") || "Próxima";
+        }else{
+          status = "ok"; priority = 2;
+          const parts = [];
+          if(daysLeft != null) parts.push(daysLeft + " días");
+          if(kmLeft != null) parts.push(fmtKm(kmLeft));
+          detail = parts.length ? "Restan " + parts.join(" · ") : "Actualizada";
+        }
+      }
+      return Object.assign({}, item, {last, status, priority, detail});
+    }).sort((a,b) => a.priority - b.priority || a.category.localeCompare(b.category) || a.name.localeCompare(b.name));
+  }
+
+  function categorySummary(items){
+    const cats = {};
+    items.forEach(it => {
+      const c = it.category || "Otros";
+      cats[c] ||= {name:c,total:0,vencida:0,proxima:0,ok:0,sinDato:0,items:[]};
+      cats[c].total++;
+      cats[c].items.push(it);
+      if(it.status === "vencida") cats[c].vencida++;
+      else if(it.status === "próxima") cats[c].proxima++;
+      else if(it.status === "ok") cats[c].ok++;
+      else cats[c].sinDato++;
+    });
+    return Object.values(cats).sort((a,b) => (b.vencida-a.vencida) || (b.proxima-a.proxima) || a.name.localeCompare(b.name));
+  }
+
+  function statusClass(s){
+    if(s === "vencida") return "fail";
+    if(s === "próxima") return "warn";
+    if(s === "ok") return "ok";
+    return "unknown";
+  }
+  function statusLabel(s){
+    if(s === "vencida") return "Falla";
+    if(s === "próxima") return "Pronto";
+    if(s === "ok") return "OK";
+    return "Sin dato";
+  }
+  function icon(cat){
+    return {Motor:"🛢️",Ruedas:"⚙️",Frenos:"🛞",Fluidos:"💧",Luces:"💡",Exterior:"🚗",Servicio:"🧰",Transmisión:"⚙",Suspensión:"〰"}[cat] || "•";
+  }
+
+  function addStyle(){
+    if(document.getElementById(STYLE_ID)) return;
+    const s = document.createElement("style");
+    s.id = STYLE_ID;
+    s.textContent = `
+      #${OVERLAY_ID}{position:fixed;inset:0;z-index:2147483000;overflow:auto;background:radial-gradient(circle at 80% -10%,rgba(39,230,196,.22),transparent 34%),linear-gradient(180deg,#07121d,#02070c 70%);color:#f4f7fb;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;padding:calc(env(safe-area-inset-top,0px) + 12px) 14px calc(env(safe-area-inset-bottom,0px) + 106px)}
+      #${OVERLAY_ID} *{box-sizing:border-box}
+      #${OVERLAY_ID} .ir-phone{max-width:480px;margin:0 auto}
+      #${OVERLAY_ID} .ir-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+      #${OVERLAY_ID} .ir-circle{width:50px;height:50px;border:1px solid #20314a;border-radius:18px;background:linear-gradient(180deg,#101b2b,#070d16);display:grid;place-items:center;font-size:23px;box-shadow:0 18px 46px rgba(0,0,0,.35)}
+      #${OVERLAY_ID} h1{margin:0;text-align:center;letter-spacing:.16em;font-size:24px;font-weight:900}
+      #${OVERLAY_ID} .ir-sub{font-size:12px;color:#27e6c4;letter-spacing:.24em;text-align:center;font-weight:850}
+      #${OVERLAY_ID} .ir-card{background:linear-gradient(180deg,rgba(18,30,47,.96),rgba(8,15,26,.96));border:1px solid #20314a;border-radius:22px;box-shadow:0 18px 46px rgba(0,0,0,.35)}
+      #${OVERLAY_ID} .ir-muted{color:#8ea0b8}
+      #${OVERLAY_ID} .ir-score{display:grid;grid-template-columns:88px 1fr;gap:14px;padding:15px;align-items:center;margin-bottom:14px}
+      #${OVERLAY_ID} .ir-ring{width:88px;height:88px;border-radius:50%;background:conic-gradient(#ff4d72 0 var(--ir-fail,24%),#ffca3a var(--ir-fail,24%) var(--ir-warn,42%),#27e6c4 var(--ir-warn,42%) 100%);display:grid;place-items:center}
+      #${OVERLAY_ID} .ir-ring div{width:66px;height:66px;border-radius:50%;background:#07101b;display:grid;place-items:center;font-size:22px;font-weight:950}
+      #${OVERLAY_ID} .ir-big{font-size:22px;font-weight:950;line-height:1.05}
+      #${OVERLAY_ID} .ir-timer{font-size:12px;color:#8ea0b8;font-weight:800}
+      #${OVERLAY_ID} .ir-cats{display:flex;gap:8px;overflow:auto;padding:2px 0 10px;scrollbar-width:none}
+      #${OVERLAY_ID} .ir-cat{min-width:86px;height:72px;border-radius:18px;border:1px solid #20314a;background:#0b1524;display:grid;place-items:center;text-align:center;font-size:11px;font-weight:900;color:#8ea0b8;padding:8px}
+      #${OVERLAY_ID} .ir-cat b{font-size:16px;color:#f4f7fb}
+      #${OVERLAY_ID} .ir-cat.active{border-color:#27e6c4;color:#27e6c4;box-shadow:0 0 22px rgba(39,230,196,.16)}
+      #${OVERLAY_ID} .ir-section{margin:16px 0 10px;display:flex;justify-content:space-between;align-items:end}
+      #${OVERLAY_ID} .ir-section h2{margin:0;color:#27e6c4;letter-spacing:.15em;font-size:15px;text-transform:uppercase}
+      #${OVERLAY_ID} .ir-section small{color:#8ea0b8;font-weight:800}
+      #${OVERLAY_ID} .ir-inspect{padding:14px;margin:10px 0}
+      #${OVERLAY_ID} .ir-head{display:flex;gap:12px;align-items:center;justify-content:space-between}
+      #${OVERLAY_ID} .ir-left{display:flex;gap:12px;align-items:center}
+      #${OVERLAY_ID} .ir-ico{width:46px;height:46px;border:1px solid #20314a;border-radius:16px;display:grid;place-items:center;font-size:23px;background:#0b1624}
+      #${OVERLAY_ID} h3{margin:0 0 3px;font-size:18px}
+      #${OVERLAY_ID} p{margin:0;color:#8ea0b8;font-weight:750;font-size:12px;line-height:1.25}
+      #${OVERLAY_ID} .ir-list{display:grid;gap:8px;margin-top:14px}
+      #${OVERLAY_ID} .ir-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;border:1px solid #20314a;border-radius:16px;background:#07111c;padding:10px}
+      #${OVERLAY_ID} .ir-row-title{font-weight:950;font-size:14px}
+      #${OVERLAY_ID} .ir-status{font-size:11px;font-weight:950;border-radius:999px;padding:7px 9px;border:1px solid #20314a;text-align:center;min-width:72px}
+      #${OVERLAY_ID} .ir-status.fail{color:#ff4d72;border-color:rgba(255,77,114,.35);background:rgba(255,77,114,.08)}
+      #${OVERLAY_ID} .ir-status.warn{color:#ffca3a;border-color:rgba(255,202,58,.35);background:rgba(255,202,58,.08)}
+      #${OVERLAY_ID} .ir-status.ok{color:#37e890;border-color:rgba(55,232,144,.35);background:rgba(55,232,144,.08)}
+      #${OVERLAY_ID} .ir-status.unknown{color:#8ea0b8}
+      #${OVERLAY_ID} .ir-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:8px}
+      #${OVERLAY_ID} .ir-choice{border-radius:13px;padding:9px 6px;text-align:center;font-size:12px;font-weight:950;border:1px solid #20314a;background:#07111c;color:#8ea0b8}
+      #${OVERLAY_ID} .ir-choice.ok.active{color:#37e890;border-color:rgba(55,232,144,.55)}
+      #${OVERLAY_ID} .ir-choice.warn.active{color:#ffca3a;border-color:rgba(255,202,58,.55)}
+      #${OVERLAY_ID} .ir-choice.fail.active{color:#ff4d72;border-color:rgba(255,77,114,.55)}
+      #${OVERLAY_ID} .ir-sticky{position:sticky;bottom:84px;z-index:2;margin-top:16px;padding:12px;border-radius:20px;background:rgba(12,22,36,.94);border:1px solid #20314a;display:flex;gap:10px;align-items:center;backdrop-filter:blur(12px)}
+      #${OVERLAY_ID} button{font:inherit;border:0;background:none;color:inherit}
+      #${OVERLAY_ID} .ir-btn{flex:1;padding:14px;border-radius:16px;background:#27e6c4;color:#06201c;font-weight:950}
+      #${OVERLAY_ID} .ir-bottom{position:fixed;left:14px;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 10px);max-width:480px;margin:auto;display:flex;justify-content:space-around;align-items:center;background:rgba(7,14,24,.96);border:1px solid #20314a;border-radius:28px;padding:9px 8px;backdrop-filter:blur(14px);box-shadow:0 -12px 40px rgba(0,0,0,.35)}
+      #${OVERLAY_ID} .ir-nav{font-size:10px;text-align:center;color:#8ea0b8;font-weight:800;min-width:54px}
+      #${OVERLAY_ID} .ir-nav b{display:block;font-size:18px;margin-bottom:1px}
+      #${OVERLAY_ID} .ir-nav.active{color:#27e6c4}
+      #${OVERLAY_ID} .ir-plus{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#27e6c4,#19c6ae);color:#05201d;font-size:40px;display:grid;place-items:center;margin-top:-34px;box-shadow:0 0 35px rgba(39,230,196,.45)}
+      #${OVERLAY_ID} .ir-toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 88px);background:#07111c;border:1px solid #27e6c4;color:#27e6c4;padding:10px 14px;border-radius:999px;font-weight:900;box-shadow:0 12px 30px rgba(0,0,0,.35);z-index:4}
+      @media(max-width:380px){
+        #${OVERLAY_ID} .ir-score{grid-template-columns:72px 1fr}
+        #${OVERLAY_ID} .ir-ring{width:72px;height:72px}
+        #${OVERLAY_ID} .ir-ring div{width:54px;height:54px;font-size:18px}
+        #${OVERLAY_ID} .ir-row{grid-template-columns:1fr}
+      }
+    `;
+    document.head.appendChild(s);
+  }
+
+  function isMaintenanceScreen(){
+    if(Date.now() < (window.__miIRBypassUntil || 0)) return false;
+    if(document.getElementById(OVERLAY_ID)) return false;
+    const t = norm(document.body && document.body.innerText);
+    return t.includes("mantenciones") && (
+      t.includes("requieren atención") ||
+      t.includes("sistemas del vehículo") ||
+      (t.includes("pendientes") && t.includes("próximas"))
+    );
+  }
+
+  function clickOriginal(labels){
+    window.__miIRBypassUntil = Date.now() + 2000;
+    const overlay = document.getElementById(OVERLAY_ID);
+    if(overlay) overlay.remove();
+
+    const needles = Array.isArray(labels) ? labels.map(norm) : [norm(labels)];
+    const els = Array.from(document.querySelectorAll("button,a,div,span"))
+      .filter(el => !el.closest("#" + OVERLAY_ID))
+      .filter(el => {
+        const txt = norm(el.innerText);
+        return txt && needles.some(n => txt === n || txt.includes(n));
+      });
+
+    const preferred = els.reverse().find(el => {
+      const r = el.getBoundingClientRect();
+      return r.width > 0 && r.height > 0 && r.top > window.innerHeight * 0.45;
+    }) || els[0];
+
+    if(preferred) setTimeout(() => preferred.click(), 40);
+  }
+
+  function renderOverlay(){
+    addStyle();
+    store = findData();
+    data = store.data;
+    const items = enrich();
+    const cats = categorySummary(items);
+    if(!activeCategory || !cats.some(c => c.name === activeCategory)) activeCategory = cats[0] ? cats[0].name : "Motor";
+
+    const bad = items.filter(i => i.status === "vencida").length;
+    const near = items.filter(i => i.status === "próxima").length;
+    const ok = items.filter(i => i.status === "ok").length;
+    const pending = bad + near;
+    const failPct = Math.min(55, Math.max(12, bad * 7));
+    const warnPct = Math.min(72, failPct + Math.max(12, near * 5));
+
+    const overlay = document.createElement("div");
+    overlay.id = OVERLAY_ID;
+    overlay.innerHTML = `
+      <main class="ir-phone">
+        <header class="ir-top">
+          <button class="ir-circle" data-nav="inicio">‹</button>
+          <div><h1>REVISIÓN</h1><div class="ir-sub">RÁPIDA</div></div>
+          <button class="ir-circle" data-nav="mas">⚙</button>
+        </header>
+        <section class="ir-score ir-card" style="--ir-fail:${failPct}%;--ir-warn:${warnPct}%">
+          <div class="ir-ring"><div>${pending}</div></div>
+          <div>
+            <div class="ir-big">${pending} puntos por revisar</div>
+            <div class="ir-muted">Chequeo por sistema: marca solo lo que revisaste o cambiaste.</div>
+            <div class="ir-timer">${items.length} controles · ${bad} vencidas · ${near} próximas</div>
+          </div>
+        </section>
+        <div class="ir-cats" data-cats></div>
+        <div class="ir-section"><h2>Chequeo guiado</h2><small>toca para marcar</small></div>
+        <div data-panel></div>
+        <div class="ir-sticky">
+          <div><b>Registrar resultado</b><div class="ir-timer">Guarda chequeos rápidos sin reiniciar vida útil</div></div>
+          <button class="ir-btn" data-save>Guardar</button>
+        </div>
+      </main>
+      <nav class="ir-bottom">
+        <button class="ir-nav" data-nav="inicio"><b>⌂</b>Inicio</button>
+        <button class="ir-nav active"><b>▣</b>Mantenciones</button>
+        <button class="ir-plus" data-nav="agregar">+</button>
+        <button class="ir-nav" data-nav="agenda"><b>▦</b>Agenda</button>
+        <button class="ir-nav" data-nav="mas"><b>•••</b>Más</button>
+      </nav>
+    `;
+    document.body.appendChild(overlay);
+
+    function rerenderPanel(){
+      const cat = cats.find(c => c.name === activeCategory) || cats[0] || {name:"Motor",items:[]};
+      overlay.querySelector("[data-cats]").innerHTML = cats.map(c => `
+        <button class="ir-cat ${c.name === activeCategory ? "active" : ""}" data-cat="${esc(c.name)}">
+          <span>${icon(c.name)}</span><b>${esc(c.name)}</b><span>${c.total} controles</span>
+        </button>`).join("");
+
+      overlay.querySelector("[data-panel]").innerHTML = `
+        <section class="ir-inspect ir-card">
+          <div class="ir-head">
+            <div class="ir-left"><div class="ir-ico">${icon(cat.name)}</div><div><h3>${esc(cat.name)}</h3><p>${cat.total} controles · ${cat.vencida} vencidos · ${cat.proxima} próximos · ${cat.sinDato} sin dato</p></div></div>
+          </div>
+          <div class="ir-list">
+            ${cat.items.map(it => {
+              const cls = statusClass(it.status);
+              const selected = selections[it.id] || "";
+              return `
+                <div class="ir-row" data-item="${esc(it.id)}">
+                  <div>
+                    <div class="ir-row-title">${esc(it.name)}</div>
+                    <p>${esc(it.detail)}</p>
+                    <div class="ir-actions">
+                      <button class="ir-choice ok ${selected === "ok" ? "active" : ""}" data-choice="ok">OK</button>
+                      <button class="ir-choice warn ${selected === "warn" ? "active" : ""}" data-choice="warn">Revisar</button>
+                      <button class="ir-choice fail ${selected === "fail" ? "active" : ""}" data-choice="fail">Falla</button>
+                    </div>
+                  </div>
+                  <div class="ir-status ${cls}">${statusLabel(it.status)}</div>
+                </div>`;
+            }).join("")}
+          </div>
+        </section>`;
+    }
+
+    rerenderPanel();
+
+    overlay.addEventListener("click", ev => {
+      const catBtn = ev.target.closest("[data-cat]");
+      if(catBtn){ activeCategory = catBtn.getAttribute("data-cat"); rerenderPanel(); return; }
+
+      const choice = ev.target.closest("[data-choice]");
+      if(choice){
+        const row = choice.closest("[data-item]");
+        if(row){
+          selections[row.getAttribute("data-item")] = choice.getAttribute("data-choice");
+          rerenderPanel();
+        }
+        return;
+      }
+
+      const nav = ev.target.closest("[data-nav]");
+      if(nav){
+        const n = nav.getAttribute("data-nav");
+        if(n === "inicio") clickOriginal("inicio");
+        if(n === "agregar") clickOriginal("agregar");
+        if(n === "agenda") clickOriginal(["agenda","calendario"]);
+        if(n === "mas") clickOriginal(["más","mas"]);
+        return;
+      }
+
+      if(ev.target.closest("[data-save]")){
+        saveChecks();
+      }
+    });
+
+    function toast(msg){
+      const old = overlay.querySelector(".ir-toast");
+      if(old) old.remove();
+      const t = document.createElement("div");
+      t.className = "ir-toast";
+      t.textContent = msg;
+      overlay.appendChild(t);
+      setTimeout(() => t.remove(), 2200);
+    }
+
+    function saveChecks(){
+      const ids = Object.keys(selections);
+      if(!ids.length){ toast("Marca al menos un control"); return; }
+      if(!store.key){ toast("No encontré la base local"); return; }
+
+      const nowIso = new Date().toISOString();
+      const currentKm = Number(data.vehicle && data.vehicle.currentKm || 0);
+      data.records ||= [];
+      ids.forEach(id => {
+        const state = selections[id];
+        const item = (data.items || []).find(x => x.id === id);
+        if(!item) return;
+        const label = state === "ok" ? "OK" : state === "warn" ? "Revisar" : "Falla";
+        data.records.push({
+          id: uuid(),
+          itemId: id,
+          date: todayISO(),
+          km: currentKm,
+          cost: 0,
+          shop: "",
+          notes: "Inspección rápida: " + label + ". No reinicia vida útil salvo que registres cambio completo.",
+          quickCheck: true,
+          createdAt: nowIso
+        });
+      });
+      localStorage.setItem(store.key, JSON.stringify(data));
+      selections = {};
+      toast("Guardado: " + ids.length + " chequeos");
+      setTimeout(() => renderRefresh(), 900);
+    }
+  }
+
+  function renderRefresh(){
+    const old = document.getElementById(OVERLAY_ID);
+    if(old) old.remove();
+    if(Date.now() >= (window.__miIRBypassUntil || 0)) renderOverlay();
+  }
+
+  function tryRender(){
+    if(isMaintenanceScreen()) renderOverlay();
+  }
+
+  document.addEventListener("click", ev => {
+    const txt = norm(ev.target && ev.target.innerText);
+    if(txt.includes("mantenciones")) setTimeout(tryRender, 160);
+  }, true);
+
+  const obs = new MutationObserver(() => setTimeout(tryRender, 80));
+  obs.observe(document.documentElement, {childList:true, subtree:true});
+
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => setTimeout(tryRender, 200));
+  else setTimeout(tryRender, 200);
+})();
+</script>
 </body>
 </html>
