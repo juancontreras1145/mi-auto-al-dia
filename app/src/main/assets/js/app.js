@@ -1,4 +1,4 @@
-const APP_VERSION='2.1.9'; // v2.0.0: dashboard SaaS enfocado en métricas
+const APP_VERSION='2.2.0'; // v2.0.0: dashboard SaaS enfocado en métricas
 const STORAGE_KEY='miAutoAlDiaData.v1';
 const DEFAULT_IMG='vehicle_silhouette.svg';
 const ENGINE_IMG='engine_bay_diagram.png';
