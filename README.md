@@ -1,3 +1,14 @@
+# Mi Auto al Día — v2.3.0
+
+Aplicación Android offline para controlar mantenciones, documentos, kilometraje e historial del vehículo.
+
+## Novedades v2.3.0
+- Interfaz renovada con modo **Claro / Oscuro / Sistema** persistente.
+- Mejoras visuales en tarjetas, navegación, formularios y configuración.
+- Comprobación de actualizaciones con comparación real de versiones.
+- Validación reforzada de respaldos JSON.
+- Mantiene compatibilidad con los datos guardados de versiones anteriores.
+
 # Mi Auto al Dia
 
 App Android offline para controlar mantenciones de un auto.

@@ -628,3 +628,31 @@ body{
   .nav{width:calc(100% - 12px)}
 }
 /* === FIN DISENO 1 MODERNO OSCURO === */
+
+/* === v2.3: tema claro/oscuro y acabado móvil === */
+:root[data-theme="light"]{
+  color-scheme:light;
+  --bg:#f3f6fa;--bg2:#eef3f8;--panel:#fff;--panel2:#fff;--card:#fff;--card2:#f8fafc;--glass:rgba(255,255,255,.92);
+  --line:rgba(15,23,42,.09);--line2:rgba(15,23,42,.13);--text:#101827;--muted:#64748b;--muted2:#94a3b8;
+  --teal:#087ff5;--teal2:#1994ff;--green:#13a864;--purple:#8b5cf6;--pink:#e94f9c;--warning:#f59e0b;--yellow:#f59e0b;--danger:#ef4444;--red:#ef4444;
+  --shadow:0 12px 36px rgba(30,50,80,.10);--glow:0 0 24px rgba(8,127,245,.12)
+}
+:root[data-theme="light"] html,:root[data-theme="light"] body{background:#f3f6fa;color:var(--text)}
+:root[data-theme="light"] body{background:linear-gradient(180deg,#f7faff 0,#f1f5f9 100%)}
+:root[data-theme="light"] .app:before{background:radial-gradient(circle at 50% 0,rgba(8,127,245,.05),transparent 32%)}
+:root[data-theme="light"] .topbar-title,:root[data-theme="light"] .brand{color:#101827}
+:root[data-theme="light"] .gear,:root[data-theme="light"] .back,:root[data-theme="light"] .icon-btn,:root[data-theme="light"] .close{background:#fff;color:#182234;border-color:var(--line);box-shadow:0 5px 18px rgba(30,50,80,.08)}
+:root[data-theme="light"] .panel,:root[data-theme="light"] .calendar-card{background:#fff;border-color:var(--line);box-shadow:var(--shadow)}
+:root[data-theme="light"] .vehicle-hero,:root[data-theme="light"] .home-vehicle-compact{background:linear-gradient(135deg,#087ff5,#3b9df8)!important;color:#fff;border-color:transparent}
+:root[data-theme="light"] .home-vehicle-compact .muted,:root[data-theme="light"] .home-vehicle-compact small{color:rgba(255,255,255,.78)}
+:root[data-theme="light"] .info-card,:root[data-theme="light"] .row,:root[data-theme="light"] .maint-row,:root[data-theme="light"] .settings-card,:root[data-theme="light"] .record-row,:root[data-theme="light"] .detail-stat{background:#fff;color:#172033;border-color:var(--line);box-shadow:0 6px 22px rgba(30,50,80,.07)}
+:root[data-theme="light"] .input,:root[data-theme="light"] select,:root[data-theme="light"] textarea{background:#fff;color:#172033;border-color:#dbe3ed}
+:root[data-theme="light"] .modal-card{background:#f8fafc;color:#172033;border-color:#dbe3ed}
+:root[data-theme="light"] .nav{background:rgba(255,255,255,.97);border-color:rgba(15,23,42,.09);box-shadow:0 12px 40px rgba(30,50,80,.14)}
+:root[data-theme="light"] .nav button{color:#718096}:root[data-theme="light"] .nav button.active{color:#087ff5;background:#edf6ff}
+:root[data-theme="light"] .btn:not(.primary):not(.danger):not(.red):not(.blue){background:#fff;color:#172033;border-color:#dbe3ed}
+:root[data-theme="light"] .tiny,:root[data-theme="light"] .mini-note,:root[data-theme="light"] .sub{color:#64748b}
+.settings-section-title{font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:18px 4px 8px}
+.theme-picker{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}.theme-option{padding:10px;border:1px solid var(--line2);border-radius:18px;background:var(--card2);color:var(--text);text-align:left}.theme-option.selected{border:2px solid var(--teal);padding:9px}.theme-option b,.theme-option small{display:block}.theme-option small{font-size:10px;color:var(--muted);margin-top:3px}.theme-preview{display:block;height:76px;border-radius:12px;margin-bottom:9px;border:1px solid var(--line)}.light-preview{background:linear-gradient(#087ff5 0 30%,#fff 30% 100%)}.dark-preview{background:linear-gradient(#0b2238 0 30%,#08111b 30% 100%)}.system-preview{background:linear-gradient(90deg,#fff 0 50%,#08111b 50%)}
+.inline-link{border:0;background:none;color:var(--teal);font-weight:900;padding:0;text-decoration:underline}
+@media(max-width:390px){.theme-picker{grid-template-columns:1fr}.theme-preview{height:54px}}
