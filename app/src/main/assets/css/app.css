@@ -656,3 +656,35 @@ body{
 .theme-picker{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}.theme-option{padding:10px;border:1px solid var(--line2);border-radius:18px;background:var(--card2);color:var(--text);text-align:left}.theme-option.selected{border:2px solid var(--teal);padding:9px}.theme-option b,.theme-option small{display:block}.theme-option small{font-size:10px;color:var(--muted);margin-top:3px}.theme-preview{display:block;height:76px;border-radius:12px;margin-bottom:9px;border:1px solid var(--line)}.light-preview{background:linear-gradient(#087ff5 0 30%,#fff 30% 100%)}.dark-preview{background:linear-gradient(#0b2238 0 30%,#08111b 30% 100%)}.system-preview{background:linear-gradient(90deg,#fff 0 50%,#08111b 50%)}
 .inline-link{border:0;background:none;color:var(--teal);font-weight:900;padding:0;text-decoration:underline}
 @media(max-width:390px){.theme-picker{grid-template-columns:1fr}.theme-preview{height:54px}}
+
+/* MI AUTO AL DIA — PREMIUM LIGHT v2.3.3 — overrides aislados */
+:root[data-theme="light"]{--bg:#f2f5f9;--bg2:#edf2f7;--panel:#fff;--panel2:#fff;--card:#fff;--card2:#f8fafc;--line:#dfe6ef;--line2:#d4dfeb;--text:#17243a;--muted:#586a80;--muted2:#72849a;--teal:#246cb3;--teal2:#3985ca;--green:#16845c;--warning:#b86a0b;--danger:#c83950;--shadow:0 5px 18px rgba(29,55,88,.055);--glow:none}
+:root[data-theme="light"] body{background:linear-gradient(180deg,#f7f9fc 0%,#eff3f8 100%);color:var(--text)}
+:root[data-theme="light"] .app{padding-bottom:calc(env(safe-area-inset-bottom) + 128px)!important}
+:root[data-theme="light"] .topbar-title,:root[data-theme="light"] .brand{color:#192c45}
+:root[data-theme="light"] .panel,:root[data-theme="light"] .calendar-card,:root[data-theme="light"] .health-trend-card,:root[data-theme="light"] .agenda-hero,:root[data-theme="light"] .saas-metric,:root[data-theme="light"] .saas-kpi,:root[data-theme="light"] .detail-stat,:root[data-theme="light"] .note-card,:root[data-theme="light"] .toggle-row,:root[data-theme="light"] .control-card{background:#fff!important;color:#17243a!important;border:1px solid #e1e7ef!important;box-shadow:0 5px 18px rgba(29,55,88,.055)!important}
+:root[data-theme="light"] .saas-metric:before,:root[data-theme="light"] .health-trend-card:before,:root[data-theme="light"] .panel:before,:root[data-theme="light"] .calendar-card:before{background:none!important}
+:root[data-theme="light"] .saas-metric span,:root[data-theme="light"] .saas-kpi span,:root[data-theme="light"] .saas-kpi small,:root[data-theme="light"] .chart-labels,:root[data-theme="light"] .detail-stat label,:root[data-theme="light"] .toggle-copy small{color:#607187!important}
+:root[data-theme="light"] .saas-metric b,:root[data-theme="light"] .saas-kpi b,:root[data-theme="light"] .saas-kpi i,:root[data-theme="light"] .section-cap,:root[data-theme="light"] .health-trend-card .section-cap,:root[data-theme="light"] .detail-title,:root[data-theme="light"] .calendar-title{color:#17243a!important}
+:root[data-theme="light"] .saas-metric.critical b{color:#c83950!important}:root[data-theme="light"] .saas-metric.warning b{color:#b86a0b!important}:root[data-theme="light"] .saas-metric.ok b{color:#16845c!important}
+:root[data-theme="light"] .saas-metric.critical span{color:#a53547!important}:root[data-theme="light"] .saas-metric.warning span{color:#9b6018!important}:root[data-theme="light"] .saas-metric.ok span{color:#137452!important}
+:root[data-theme="light"] .saas-metric small{border-color:#dbe4ee!important;color:#65758a!important;background:#f4f7fb}
+:root[data-theme="light"] .home-vehicle-compact.saas-hero,:root[data-theme="light"] .vehicle-hero{background:linear-gradient(135deg,#e9f1fa 0%,#d8e9f7 54%,#c9dff2 100%)!important;border:1px solid #cbdfee!important;color:#183754!important;box-shadow:0 9px 28px rgba(37,84,130,.09)!important}
+:root[data-theme="light"] .saas-hero .vehicle-name,:root[data-theme="light"] .saas-hero .vehicle-km b,:root[data-theme="light"] .saas-hero .vehicle-line,:root[data-theme="light"] .saas-hero .vehicle-km span,:root[data-theme="light"] .saas-hero .vehicle-km small,:root[data-theme="light"] .home-vehicle-compact .muted,:root[data-theme="light"] .home-vehicle-compact small{color:#244766!important;text-shadow:none!important}
+:root[data-theme="light"] .saas-hero .mini-car img{filter:drop-shadow(0 13px 13px rgba(30,55,85,.22)) saturate(.9)!important}
+:root[data-theme="light"] .saas-hero:after,:root[data-theme="light"] .saas-hero .mini-car:before{opacity:.18!important}
+:root[data-theme="light"] .health-trend-card .gauge-inner,:root[data-theme="light"] .donut-inner{background:#fff!important;color:#17243a!important}
+:root[data-theme="light"] .health-chart .line{stroke:#246cb3!important;filter:none!important}:root[data-theme="light"] .health-chart .fill{opacity:.25!important}
+:root[data-theme="light"] .alert-mini,:root[data-theme="light"] .maint-row,:root[data-theme="light"] .row,:root[data-theme="light"] .info-card,:root[data-theme="light"] .settings-card,:root[data-theme="light"] .record-row{background:#fff!important;color:#17243a!important;border:1px solid #e1e7ef!important;box-shadow:0 4px 16px rgba(29,55,88,.045)!important}
+:root[data-theme="light"] .row-main b,:root[data-theme="light"] .alert-mini .row-main b,:root[data-theme="light"] .control-copy b{color:#183754!important}
+:root[data-theme="light"] .row-main small,:root[data-theme="light"] .control-copy small{color:#62748a!important}
+:root[data-theme="light"] .alert-mini .mini-progress,:root[data-theme="light"] .progressbar{background:#e8eef5!important;border-color:#e0e8f0!important}
+:root[data-theme="light"] .nav{height:66px!important;bottom:calc(env(safe-area-inset-bottom) + 10px)!important;background:rgba(255,255,255,.98)!important;border:1px solid #dfe6ef!important;box-shadow:0 8px 24px rgba(30,50,80,.11)!important;backdrop-filter:blur(12px)}
+:root[data-theme="light"] .nav button{color:#68798e!important}:root[data-theme="light"] .nav button.active{color:#246cb3!important;background:#eaf3fc!important}
+:root[data-theme="light"] .nav button.nav-add .ico{box-shadow:0 5px 15px rgba(36,108,179,.19)!important}
+:root[data-theme="light"] .day{color:#253950!important}:root[data-theme="light"] .day.today{color:#fff!important;background:#246cb3!important;box-shadow:none!important}
+:root[data-theme="light"] .toggle-row,:root[data-theme="light"] .note-card{background:#fff!important}
+:root[data-theme="light"] .modal-card{background:#f8fafc!important;color:#17243a!important}
+:root[data-theme="light"] .theme-option{background:#fff!important;color:#17243a!important}
+@media(max-width:390px){:root[data-theme="light"] .app{padding-bottom:calc(env(safe-area-inset-bottom) + 134px)!important}}
+
