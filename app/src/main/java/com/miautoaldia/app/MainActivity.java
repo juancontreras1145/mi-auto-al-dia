@@ -134,6 +134,11 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         setupBars();
+        // Reaplicar contraste de barras al volver desde otra app o el instalador.
+        if (webView != null) {
+            webView.post(() -> webView.evaluateJavascript(
+                    "if(typeof applyTheme==='function'){applyTheme()}", null));
+        }
     }
 
     private void setupBars() {

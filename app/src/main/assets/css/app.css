@@ -759,3 +759,230 @@ body{
 :root[data-theme="light"] .date-pill:not(.today){color:#23374e!important}
 :root[data-theme="light"] .system-card h3,:root[data-theme="light"] .system-card p{opacity:1!important}
 .cover-choice img{object-position:center 62%}
+
+/* ===== V2.3.7 · PORTADA FOTO REAL + CONTENIDO APARTE =====
+   El coche nunca se tapa con un degradado ni con el kilometraje.
+   La foto se muestra sin filtros oscuros; los valores siguen siendo dinámicos. */
+.home-vehicle-compact.saas-hero.scenic-hero,
+:root[data-theme="light"] .home-vehicle-compact.saas-hero.scenic-hero {
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:initial!important;
+  align-items:stretch!important;
+  min-height:0!important;
+  padding:0!important;
+  background:#111c2a!important;
+  background-image:none!important;
+  border:1px solid #2d4054!important;
+  border-radius:23px!important;
+  overflow:hidden!important;
+  gap:0!important;
+  box-shadow:0 12px 32px rgba(5,15,31,.19)!important;
+}
+.home-vehicle-compact.scenic-hero:before,
+.home-vehicle-compact.scenic-hero:after {display:none!important}
+.scenic-hero .cover-photo {
+  position:relative;
+  display:block;
+  width:100%;
+  height:auto;
+  aspect-ratio:1.89/1;
+  min-height:170px;
+  max-height:275px;
+  overflow:hidden;
+  background:linear-gradient(130deg,#82b7dd,#152d47);
+  cursor:pointer;
+}
+.scenic-hero .cover-photo-image {
+  display:block;
+  width:100%;height:100%;
+  object-fit:cover;
+  object-position:center 64%;
+  filter:brightness(1.10) contrast(1.05) saturate(1.06);
+  transform:none!important;
+  box-shadow:none!important;
+}
+.scenic-hero .cover-photo:after{content:"";position:absolute;inset:auto 0 0;height:12%;background:linear-gradient(transparent,rgba(0,0,0,.12));pointer-events:none}
+.scenic-hero .cover-hero-change{
+  position:absolute!important;right:11px!important;top:11px!important;
+  z-index:3!important;
+  color:#fff!important;
+  background:rgba(4,17,32,.87)!important;
+  border:1px solid rgba(255,255,255,.52)!important;
+  border-radius:999px!important;
+  padding:9px 13px!important;
+  font-size:12px!important;font-weight:800!important;
+  text-shadow:none!important;
+  box-shadow:0 3px 12px rgba(0,0,0,.2)!important;
+}
+.scenic-hero .hero-copy,
+:root[data-theme="light"] .scenic-hero .hero-copy{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  align-items:center!important;
+  width:100%!important;
+  min-width:0!important;
+  gap:12px!important;
+  padding:14px 15px 16px!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:#0d1928!important;
+  background-image:none!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+  text-align:left!important;
+  box-shadow:none!important;
+  order:initial!important;
+}
+.scenic-hero .hero-vehicle-meta{min-width:0}
+.scenic-hero .hero-copy .vehicle-name,
+:root[data-theme="light"] .scenic-hero .hero-copy .vehicle-name{
+  margin:0 0 4px!important;
+  color:#f8fbff!important;
+  font-size:19px!important;
+  line-height:1.1!important;
+  text-align:left!important;
+  text-shadow:none!important;
+  white-space:normal!important;
+}
+.scenic-hero .hero-copy .vehicle-line,
+:root[data-theme="light"] .scenic-hero .hero-copy .vehicle-line{
+  color:#c0d0e3!important;
+  font-size:12px!important;
+  justify-content:flex-start!important;
+  text-shadow:none!important;
+  text-align:left!important;
+}
+.scenic-hero .hero-copy .vehicle-km{margin:0!important;min-width:0;text-align:right!important}
+.scenic-hero .hero-copy .vehicle-km span,
+:root[data-theme="light"] .scenic-hero .hero-copy .vehicle-km span{
+  display:block!important;
+  color:#b3c7dc!important;
+  font-size:9px!important;
+  letter-spacing:.06em!important;
+  text-shadow:none!important;
+}
+.scenic-hero .hero-copy .vehicle-km b,
+:root[data-theme="light"] .scenic-hero .hero-copy .vehicle-km b{
+  display:block!important;
+  font-size:clamp(20px,5.3vw,27px)!important;
+  letter-spacing:-.5px!important;
+  white-space:nowrap!important;
+  color:#fff!important;
+  margin-top:3px!important;
+  text-shadow:none!important;
+}
+.scenic-hero .hero-copy .vehicle-km small,
+:root[data-theme="light"] .scenic-hero .hero-copy .vehicle-km small{
+  display:block!important;
+  margin-top:3px!important;
+  color:#afc2d8!important;
+  font-size:10px!important;
+  text-shadow:none!important;
+}
+:root[data-theme="light"] .home-vehicle-compact.saas-hero.scenic-hero{
+  background:#fff!important;
+  border-color:#dce4ee!important;
+  box-shadow:0 8px 25px rgba(30,50,80,.09)!important;
+}
+:root[data-theme="light"] .scenic-hero .hero-copy{background:#fff!important}
+:root[data-theme="light"] .scenic-hero .hero-copy .vehicle-name{color:#152b42!important}
+:root[data-theme="light"] .scenic-hero .hero-copy .vehicle-line{color:#52657b!important}
+:root[data-theme="light"] .scenic-hero .hero-copy .vehicle-km span{color:#52657b!important}
+:root[data-theme="light"] .scenic-hero .hero-copy .vehicle-km b{color:#17324f!important}
+:root[data-theme="light"] .scenic-hero .hero-copy .vehicle-km small{color:#52657b!important}
+.cover-choice img{object-position:center 64%!important;filter:brightness(1.08) contrast(1.03)}
+@media(max-width:370px){
+ .scenic-hero .hero-copy{gap:8px!important;padding:12px 10px!important}
+ .scenic-hero .hero-copy .vehicle-name{font-size:17px!important}
+ .scenic-hero .hero-copy .vehicle-km b{font-size:20px!important}
+}
+/* ===== V2.3.7 · MODO CLARO COHERENTE (ESPECIALMENTE FOCUS-CARD) ===== */
+:root[data-theme="light"] .focus-card,
+:root[data-theme="light"] .maintenance-focus .focus-card,
+:root[data-theme="light"] .maint-row,
+:root[data-theme="light"] .home-alerts .maint-row,
+:root[data-theme="light"] .agenda-row,
+:root[data-theme="light"] .agenda-main,
+:root[data-theme="light"] .agenda-stat,
+:root[data-theme="light"] .doc-chip,
+:root[data-theme="light"] .summary-chip,
+:root[data-theme="light"] .system-card,
+:root[data-theme="light"] .system-card.active {
+ background:#fff!important;
+ background-image:none!important;
+ color:#1a2c42!important;
+ border:1px solid #dce5ee!important;
+ box-shadow:0 4px 13px rgba(18,43,74,.065)!important;
+}
+:root[data-theme="light"] .focus-card:before,
+:root[data-theme="light"] .focus-card:after,
+:root[data-theme="light"] .maint-row:before,
+:root[data-theme="light"] .maint-row:after{
+ background:none!important;
+}
+:root[data-theme="light"] .focus-title b,
+:root[data-theme="light"] .maint-row .row-main b,
+:root[data-theme="light"] .maint-row .maint-title,
+:root[data-theme="light"] .home-alerts .row-main b,
+:root[data-theme="light"] .agenda-copy b,
+:root[data-theme="light"] .agenda-main .copy b,
+:root[data-theme="light"] .doc-chip b,
+:root[data-theme="light"] .system-card h3{
+ color:#172c46!important;
+ opacity:1!important;
+ text-shadow:none!important;
+}
+:root[data-theme="light"] .focus-title small,
+:root[data-theme="light"] .maint-row .row-main small,
+:root[data-theme="light"] .maint-row .maint-sub,
+:root[data-theme="light"] .agenda-copy small,
+:root[data-theme="light"] .agenda-main .copy small,
+:root[data-theme="light"] .doc-chip small,
+:root[data-theme="light"] .system-card p{
+ color:#5a6c82!important;
+ opacity:1!important;
+ text-shadow:none!important;
+}
+:root[data-theme="light"] .focus-state.critical,
+:root[data-theme="light"] .due-stack.critical,
+:root[data-theme="light"] .status.critical{color:#b8253e!important}
+:root[data-theme="light"] .summary-chip span{color:#586a80!important}
+:root[data-theme="light"] .summary-chip.critical b{color:#c12f48!important}
+:root[data-theme="light"] .summary-chip.warning b{color:#b36a0b!important}
+:root[data-theme="light"] .summary-chip.ok b{color:#11794e!important}
+:root[data-theme="light"] .summary-chip.unknown b{color:#455970!important}
+:root[data-theme="light"] .maintenance-tabs{background:#f0f4f9!important;border-color:#dce5ee!important}
+:root[data-theme="light"] .maintenance-tabs .seg{color:#4d6076!important}
+:root[data-theme="light"] .maintenance-tabs .seg.active{color:#fff!important;background:#246fb7!important}
+:root[data-theme="light"] .mini-progress{background:#e6edf4!important}
+:root[data-theme="light"] .mini-progress span{background:linear-gradient(90deg,#1c78cf,#43a2ea)!important}
+:root[data-theme="light"] .system-card.active{background:#edf6ff!important;border-color:#6ab3e9!important}
+:root[data-theme="light"] .icon-badge{background:#f5f9fd;box-shadow:none}
+/* mantener las cifras y fechas rojas/verde con contraste también en tema oscuro */
+.focus-title b,.focus-title small,.agenda-copy b,.agenda-copy small{opacity:1}
+/* Especificidad final para evitar que los estilos de la portada 2.3.5 ganen. */
+:root[data-theme="light"] .home-vehicle-compact.saas-hero.scenic-hero .hero-copy .vehicle-name,
+:root[data-theme="light"] .home-vehicle-compact.saas-hero.scenic-hero .hero-copy .vehicle-line,
+:root[data-theme="light"] .home-vehicle-compact.saas-hero.scenic-hero .hero-copy .vehicle-km span,
+:root[data-theme="light"] .home-vehicle-compact.saas-hero.scenic-hero .hero-copy .vehicle-km b,
+:root[data-theme="light"] .home-vehicle-compact.saas-hero.scenic-hero .hero-copy .vehicle-km small {
+ text-shadow:none!important;
+}
+:root[data-theme="light"] .home-vehicle-compact.saas-hero.scenic-hero .hero-copy .vehicle-name,
+:root[data-theme="light"] .home-vehicle-compact.saas-hero.scenic-hero .hero-copy .vehicle-km b {color:#172b44!important}
+:root[data-theme="light"] .home-vehicle-compact.saas-hero.scenic-hero .hero-copy .vehicle-line,
+:root[data-theme="light"] .home-vehicle-compact.saas-hero.scenic-hero .hero-copy .vehicle-km span,
+:root[data-theme="light"] .home-vehicle-compact.saas-hero.scenic-hero .hero-copy .vehicle-km small {color:#52657b!important}
+/* Agenda: fecha de cada registro legible sobre blanco (antes conservaba fondo negro). */
+:root[data-theme="light"] .agenda-row .agenda-date {
+  background:#eef5fc!important;
+  color:#1b5f9c!important;
+  border:1px solid #d7e5f3!important;
+  border-radius:11px!important;
+  padding:8px 3px!important;
+  line-height:1.15!important;
+}
+:root[data-theme="light"] .agenda-row .agenda-date b,
+:root[data-theme="light"] .agenda-row .agenda-date span{color:#1b5f9c!important}
