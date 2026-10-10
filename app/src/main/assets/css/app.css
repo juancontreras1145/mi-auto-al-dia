@@ -747,3 +747,15 @@ body{
 :root[data-theme="light"] .agenda-stat b {color:#246cb3!important}
 :root[data-theme="light"] .agenda-row .status {font-weight:900}
 :root[data-theme="light"] .system-card.active {border-color:#3a92ce!important;background:#eef7ff!important}
+
+/* v2.3.6: legibilidad reforzada y portada con vehículo visible */
+.saas-hero.scenic-hero .hero-copy{background:linear-gradient(180deg,rgba(4,12,24,.18),rgba(4,12,24,.80));padding:12px 10px 8px;border-radius:17px;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
+.saas-hero.scenic-hero .vehicle-name,.saas-hero.scenic-hero .vehicle-km b{font-weight:950!important}
+:root[data-theme="light"] .maint-row .maint-title,:root[data-theme="light"] .maint-row .row-main b,:root[data-theme="light"] .maint-row .row-main small,:root[data-theme="light"] .maint-row .maint-sub{color:#eaf3ff!important}
+:root[data-theme="light"] .maint-row{border-color:rgba(150,178,212,.32)!important}
+:root[data-theme="light"] .agenda-row:not(.light),:root[data-theme="light"] .agenda-main:not(.light){color:#20344d!important}
+:root[data-theme="light"] .agenda-row .agenda-copy b,:root[data-theme="light"] .agenda-main .copy b{color:#17283e!important}
+:root[data-theme="light"] .agenda-row .agenda-copy small,:root[data-theme="light"] .agenda-main .copy small{color:#566b83!important}
+:root[data-theme="light"] .date-pill:not(.today){color:#23374e!important}
+:root[data-theme="light"] .system-card h3,:root[data-theme="light"] .system-card p{opacity:1!important}
+.cover-choice img{object-position:center 62%}
